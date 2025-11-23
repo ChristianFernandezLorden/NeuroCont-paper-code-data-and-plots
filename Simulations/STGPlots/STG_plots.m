@@ -220,8 +220,8 @@ noise_strength = 0.025;
 mismatch_param.width = 2*noise_strength*stddev_ratio;
 mismatch_param.std = noise_strength;
 
-import NeurCont.mismatch.apply_to_system
-import NeurCont.mismatch.base_options
+import NeuroCont.mismatch.apply_to_system
+import NeuroCont.mismatch.base_options
 
 simins = apply_to_system(model, mismatch_param, eval_params.nbEval, base_options(), 'mismatchIncludeList', 'all', 'blockTypeIncludeList', 'all');
 
@@ -294,8 +294,8 @@ noise_strength = 0.025;
 mismatch_param.width = 2*noise_strength*stddev_ratio;
 mismatch_param.std = noise_strength;
 
-import NeurCont.mismatch.apply_to_system
-import NeurCont.mismatch.base_options
+import NeuroCont.mismatch.apply_to_system
+import NeuroCont.mismatch.base_options
 
 simin = apply_to_system(model, mismatch_param, 1, base_options(), 'mismatchIncludeList', 'all', 'blockTypeIncludeList', 'all');
 simin = simin.setVariable('a',0.01, "Workspace", model);

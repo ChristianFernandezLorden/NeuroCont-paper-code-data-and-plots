@@ -146,8 +146,8 @@ end
 
 %% Mismatch Performance
 
-import NeurCont.mismatch.apply_to_system
-import NeurCont.mismatch.base_options
+import NeuroCont.mismatch.apply_to_system
+import NeuroCont.mismatch.base_options
 
 specific_mismatch_func = containers.Map( ...
     {'TransferFcn'},...
