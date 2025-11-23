@@ -1,0 +1,252 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+% Gray a bit darker for text
+% Find a way to have an emptier arrow head
+
+\input{../tikzdefinitions.tex}
+\input{../pgfplots_style_setup.tex}
+\pgfplotsset{ 
+    detached axis,
+    every axis plot/.style={
+        no markers,
+        miter limit=2,
+    },
+}
+
+\pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+
+\colorlet{inColor}{black}
+\colorlet{modulationColor}{black}
+\colorlet{outColor}{black}
+%\colorlet{inColor}{natureSkyBlue}
+%\colorlet{modulationColor}{natureBluishGreen}
+%\colorlet{outColor}{natureOrange}
+\colorlet{axisColor}{black!20}
+\colorlet{textGreyColor}{black!60}
+\colorlet{plotGreyColor}{black!60}
+\begin{document}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            fast dyn/.style={},%{draw=ulgRed, fill=white},
+            slow dyn/.style={},%{draw=ulgGreen, fill=white},
+            uslow dyn/.style={},%{draw=ulgBlue, fill=white},
+            pos conductance/.style={draw=ulgGreen, text=ulgGreen},
+            neg conductance/.style={draw=ulgRed, text=ulgRed},
+            font = \normalsize,
+            panel node/.style={line width=\PanelLineWidth, rounded corners=2mm, inner sep=0pt},
+            panel letter/.style={font=\bfseries\Large, text=textGreyColor, inner sep=0.0cm, anchor=north west},
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+        ]
+        \pgfmathsetlengthmacro{\PanelXSpacing}{0.2cm}
+        \pgfmathsetlengthmacro{\PanelXSpacingNext}{0.6cm}
+        \pgfmathsetlengthmacro{\PanelYSpacing}{0.2cm}
+        \pgfmathsetlengthmacro{\PageWidth}{372pt*1}
+        \pgfmathsetlengthmacro{\FigureHeight}{\PageWidth*1.01}
+        % Widths
+        \pgfmathsetlengthmacro{\FullPanelWidth}{\PageWidth - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\LeftPanelWidth}{\FullPanelWidth/3.4 - \PanelXSpacing - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\RightPanelWidth}{\FullPanelWidth/2.7 - \PanelXSpacing - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\MiddlePanelWidth}{\FullPanelWidth - \LeftPanelWidth - \RightPanelWidth - 2*\PanelXSpacing - 2*\PanelLineWidth}
+        \pgfmathsetlengthmacro{\LeftMiddlePanelWidth}{\LeftPanelWidth + \MiddlePanelWidth + \PanelXSpacing + \PanelLineWidth}
+        \pgfmathsetlengthmacro{\RightMiddlePanelWidth}{\RightPanelWidth + \MiddlePanelWidth + \PanelXSpacing + \PanelLineWidth}
+        % Heights
+        \pgfmathsetlengthmacro{\FullPanelPanelHeight}{\FigureHeight - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\TopPanelHeight}{0.76*\FullPanelPanelHeight - \PanelYSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\ModulationPanelHeight}{\FullPanelPanelHeight - \TopPanelHeight - \PanelYSpacing - \PanelLineWidth}
+
+        \pgfmathsetlengthmacro{\NeuronPanelHeight}{0.65*\TopPanelHeight - \PanelYSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\MainPanelHeight}{\TopPanelHeight - \NeuronPanelHeight - \PanelYSpacing - \PanelLineWidth}
+
+        \pgfmathsetlengthmacro{\TanhLowpassPanelHeight}{\MainPanelHeight + \ModulationPanelHeight + \PanelYSpacing + \PanelLineWidth}
+        \pgfmathsetlengthmacro{\TanhPanelHeight}{0.58*\TanhLowpassPanelHeight - \PanelYSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\LowpassPanelHeight}{\TanhLowpassPanelHeight - \TanhPanelHeight - \PanelYSpacing - \PanelLineWidth}
+
+        \pgfmathsetlengthmacro{\FacilitatingPanelHeight}{0.45*\TopPanelHeight - \PanelYSpacing - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\DepressingPanelHeight}{\TopPanelHeight - \FacilitatingPanelHeight - \PanelYSpacing - \PanelLineWidth}
+
+        % Inside Panel Spacing
+        \pgfmathsetlengthmacro{\BaseSpacing}{0.25cm+0.66666em}
+        \pgfmathsetlengthmacro{\TextSpacingBot}{height("\noexpand\large $t$") + depth("\noexpand\large $t$")}
+        %\pgfmathsetlengthmacro{\BotSpacingPanel}{0.6cm}
+        \pgfmathsetlengthmacro{\BotSpacingPanel}{\TextSpacingBot + \BaseSpacing}
+
+
+        \pgfmathsetlengthmacro{\TopSpacingPanel}{0.2cm}
+        \pgfmathsetlengthmacro{\TopSpacingPanelMod}{0.2cm + \TopSpacingPanel}
+        \pgfmathsetlengthmacro{\RightSpacingPanel}{0.35cm}
+        \pgfmathsetlengthmacro{\LabelSpacing}{0.45cm + \RightSpacingPanel}
+        \pgfmathsetlengthmacro{\PlotHeight}{1.2cm}
+        \pgfmathsetlengthmacro{\HalfPlotHeight}{0.5cm}
+        \pgfmathsetlengthmacro{\PlotSep}{0.2cm}
+        \pgfmathsetlengthmacro{\SquareBlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\AddBlockSize}{0.3cm}
+        
+
+        \pgfmathsetlengthmacro{\TextSpacing}{width("\noexpand\large $y$")}
+        
+        % Panel Layout
+        \begin{scope}[on background layer]
+        %\node[panel node, anchor=north west, draw=ulgGreenDark, fill=ulgGreenDark!5, minimum width=\LeftMiddlePanelWidth, minimum height=\NeuronPanelHeight] (neuron_panel) at (0,0) {};
+        %\node[panel node, anchor=north east, draw=none, fill=none, minimum width=\MiddlePanelWidth, minimum height=\MainPanelHeight] (main_panel) at ([yshift=-\PanelYSpacing]neuron_panel.south east) {};
+
+        \node[panel node, anchor=north west, draw=none, fill=none, minimum width=\LeftPanelWidth, minimum height=\TanhPanelHeight] (tanh_panel) at (0,0) {};
+        \node[panel node, anchor=north west, draw=none, fill=none, minimum width=\LeftPanelWidth, minimum height=\TanhPanelHeight] (lowpass_panel) at ([xshift=\PanelXSpacing+\PanelXSpacingNext]tanh_panel.north east) {};
+        \end{scope}
+
+
+        % --- Tanh Panel ---
+        \begin{scope}[shift={(tanh_panel.center)}]
+            \node[panel letter] at (tanh_panel.north west) {A};
+
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\ModulationSpacing}{0.1cm}
+            \pic[draw=black, fill=white, tanh style={draw style={draw=black, thick}, mod input port distance=0.2cm, mod output port distance=0.3cm}, anchor=north, thick] (tanh_block) at ([shift={(\TextSpacing,-\TopSpacingPanelMod)}]tanh_panel.north) {tanh block=\SquareBlockSize};
+            \draw[connection arrow, very thick] ([xshift=-\InputOutputSpacing]tanh_block.west) node[left,text=inColor] {$u$} -- (tanh_block.west);
+            \draw[connection arrow, very thick] (tanh_block.east) -- ([xshift=\InputOutputSpacing]tanh_block.east) node[right,text=outColor] {$y$};
+
+            \begin{scope}[on background layer]
+                \draw [modulation arrow, very thick] ([yshift=-\ModulationSpacing]tanh_block-mod-start) node[below, text=modulationColor] {$g$} -- (tanh_block-mod-start) -- (tanh_block-mod-end);
+            \end{scope}
+
+            \begin{axis}[
+                scale only axis,
+                width=\LeftPanelWidth-\TextSpacing-\BaseSpacing,
+                height=\PlotHeight,
+                ymin=-2.1, ymax=2.1,
+                xmin=-4, xmax=4,
+                xlabel={\textcolor{inColor}{$u$}},
+                ylabel={\textcolor{outColor}{$y$}},
+                name=tanh plot,
+                at={($(tanh_panel.south east) + (0,\BotSpacingPanel)$)},
+                anchor=south east,
+                two ticks y axis={-2.2}{2.2},
+                two ticks y axis labels={}{},
+                two ticks x axis={-4}{4},
+                two ticks x axis labels={}{},
+                clip=false,
+                axis line style={axisColor},
+                tick style={axisColor},
+            ]
+                \begin{scope}[
+                        every node/.style={font=\scriptsize,inner sep =1pt}, 
+                        every axis plot/.append style={domain=-4:4,samples=100}
+                    ]
+                    \addplot[color=black, thick] {-0.7*tanh(x)} node[pos=1.0,text=modulationColor, anchor=north east] at (4,0.5) {$g_1$};
+                    \addplot[color=black, densely dotted, thick] {2*tanh(x)} node[pos=1.0,text=modulationColor, anchor=south east] at (4,2) {$g_2$};
+                \end{scope}
+            \end{axis}
+        \end{scope}
+
+        % --- Lowpass Panel ---
+
+        \begin{scope}[shift={(lowpass_panel.center)}]
+            \node[panel letter] at (lowpass_panel.north west) {B};
+
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\ModulationSpacing}{0.1cm}
+            \pic[draw=black, fill=white, anchor=north, thick] (lowpass_block) at ([shift={(\TextSpacing,-\TopSpacingPanelMod)}]lowpass_panel.north) {lowpass block=\SquareBlockSize};
+            \draw[connection arrow, very thick] ([xshift=-\InputOutputSpacing]lowpass_block.west) node[left, text=inColor] {$u$} -- (lowpass_block.west);
+            \draw[connection arrow, very thick] (lowpass_block.east) -- ([xshift=\InputOutputSpacing]lowpass_block.east) node[right, text=outColor] {$y$};
+
+            \iffalse
+            \begin{axis}[
+                    scale only axis,
+                    width=\LeftPanelWidth-\BaseSpacing,
+                    height=\PlotHeight,
+                    ymin=-0.1, ymax=1.1,
+                    xmin=-2, xmax=4,
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    %ylabel={value},
+                    name=lowpass plot,
+                    name=lowpass plot,
+                    at={($(lowpass_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={-2}{4},
+                    two ticks x axis labels={}{},
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                ]
+                \addplot[inColor,dashed, very thick,name path=input] coordinates { (-2, 0) (0, 0) (0, 1) (4, 1)};
+                \addplot[color=outColor,domain=-2:4,samples=100, very thick,name path=output] {max(0, 1 - exp(-2*x))};
+                
+                \addplot [draw=none,name path=line-mid] coordinates {(-2,0.45) (4,0.45)};
+                \path [name intersections={of=line-mid and input,by=input-inter}];
+                \path [name intersections={of=line-mid and output,by=output-inter}];
+
+                \node[anchor=base east, text=inColor] at (input-inter) {$u$};
+                \node[anchor=base west, text=outColor] at (output-inter) {$y$};
+            \end{axis}
+            \fi
+
+            \begin{axis}[
+                    scale only axis,
+                    width=\LeftPanelWidth-\BaseSpacing,
+                    height=\HalfPlotHeight,
+                    ymin=-0.1, ymax=1.1,
+                    xmin=-2, xmax=4,
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    ylabel={\textcolor{inColor}{$u$}},
+                    %ylabel={value},
+                    name=lowpass in plot,
+                    at={($(lowpass_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={-0.1}{1.1},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={-2}{4},
+                    two ticks x axis labels={}{},
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                ]
+                \addplot[black,  thick,name path=input] coordinates { (-2, 0) (0, 0) (0, 1) (4, 1)};
+            \end{axis}
+
+            \begin{axis}[
+                    scale only axis,
+                    width=\LeftPanelWidth-\BaseSpacing,
+                    height=\HalfPlotHeight,
+                    xmin=-2, xmax=4,
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    ylabel={\textcolor{outColor}{$y$}},
+                    %ylabel={value},
+                    name=lowpass out plot,
+                    at={($(lowpass in plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    hide x axis,
+                    two ticks y axis={-0.1}{1.1},
+                    two ticks y axis labels={}{},
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                ]
+                \addplot[color=black,domain=-2:4,samples=100,  thick,name path=output] {max(0, 1 - exp(-2*x))};
+            \end{axis}
+        \end{scope}
+
+        \coordinate (panels_center) at ($(tanh_panel.center)!0.5!(lowpass_panel.center)$);
+
+        %\draw[draw=ulgGrey, dotted, very thick] ([yshift=0.3cm]tanh_panel.south-|panels_center) -- (tanh_panel.north-|panels_center);
+
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

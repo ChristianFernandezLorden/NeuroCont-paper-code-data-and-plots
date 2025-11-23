@@ -1,0 +1,551 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{pgfplots}
+\usetikzlibrary{plotmarks}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+
+\input{../pgfplots_style_setup.tex}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\begin{document}
+    \colorlet{colorLineError}{natureSkyBlue}
+    \colorlet{colorLAreaError}{natureSkyBlue!25}
+    \colorlet{colorDotError}{natureSkyBlue}
+    \colorlet{colorLineParam}{natureBluishGreen}
+    \colorlet{colorLAreaParam}{natureBluishGreen!25}
+    \colorlet{colorDotParam}{natureBluishGreen}
+    \colorlet{axisColor}{black!20}
+    \colorlet{plotGreyColor}{black!60}
+    \colorlet{textGreyColor}{black!60}
+    
+\begin{tikzpicture}[
+        title style/.style = {
+            font=\bfseries, 
+            fill=ulgGrey!25, 
+            text width=2cm, 
+            align=center
+        },
+    ]
+    \newcommand{\probplot}[5]{%
+    % Line plot
+    \addplot [color=#3,name path=mean,forget plot] 
+    table [col sep=comma, x=prob, y=median] 
+    {#1};
+    % Area plot
+    \addplot [draw=none,name path=top,forget plot] 
+    table [col sep=comma, x=prob,y=perc25] 
+    {#1};
+    \addplot [draw=none,name path=bot,forget plot] 
+    table [col sep=comma, x=prob,y=perc75] 
+    {#1};
+    \addplot[color=#4,forget plot] fill between[of=top and bot];
+    % Points plot
+    \addplot[only marks, mark=-, very thin,color=#5,mark size=0.4pt,forget plot,on layer=axis foreground] table [col sep=comma, x=prob, y=val] {#2};
+    %\addplot[only marks,color=#5,mark size=0.2pt,forget plot,on layer=axis foreground] table [col sep=comma, x=prob, y=val] {#2};
+    }
+
+    \pgfmathsetlengthmacro{\plotheight}{1.25cm}
+    \pgfmathsetlengthmacro{\plotwidth}{3.1cm}
+    \pgfmathsetlengthmacro{\plotXsep}{1.15cm}
+    \pgfmathsetlengthmacro{\plotYsep}{0.15cm}
+    \pgfmathsetlengthmacro{\groupplotYsep}{1.8cm}
+    \pgfmathsetlengthmacro{\labelXoff}{0.2cm}
+    \pgfmathsetlengthmacro{\labelYoff}{0.2cm}
+    \pgfmathsetlengthmacro{\titleYoff}{0.1cm}
+
+
+    \newcommand{\xminMisLow}{0}\newcommand{\xmaxMisLow}{0.075}
+    \newcommand{\xminMisLowText}{0}\newcommand{\xmaxMisLowText}{0.075}
+    \newcommand{\xminMisHigh}{0}\newcommand{\xmaxMisHigh}{0.25}
+    \newcommand{\xminMisHighText}{0}\newcommand{\xmaxMisHighText}{0.25}
+
+    \newcommand{\ampMin}{0.01}\newcommand{\ampMax}{2}
+    \newcommand{\ampMinText}{\num{1e-1}}\newcommand{\ampMaxText}{\num{2e0}}
+
+    \newcommand{\freqMin}{0.005}\newcommand{\freqMax}{0.5}
+    \newcommand{\freqMinText}{\num{5e-3}}\newcommand{\freqMaxText}{\num{5e-1}}
+
+    \newcommand{\gsynMin}{-5}\newcommand{\gsynMax}{-1}
+    
+    \newcommand{\gsmMin}{1.5}\newcommand{\gsmMax}{5}
+
+    \pgfplotsset{
+        every axis/.append style={scale only axis},
+        detached axis=0.35cm,
+        xmin=\xminMisLow,xmax=\xmaxMisLow,
+        middle y axis style/.style={
+            two ticks y axis labels={}{},
+            ylabel={},
+            %hide y axis,
+        },
+        axis line style={axisColor},
+        tick style={axisColor},
+        tick label style={text=textGreyColor},
+        xlabel = $\sigma$,
+        scaled x ticks=false,
+        xticklabel style={
+                /pgf/number format/fixed,
+                /pgf/number format/precision=5
+        },
+    }
+
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\ampMin}{\ampMax},
+            two ticks y axis labels={\ampMinText}{\ampMaxText},
+            name=top plot,
+        ]
+        \probplot{data/controller_mismatch_all_mismatch_amp_error_avg.csv}{data/controller_mismatch_all_mismatch_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        \coordinate (A_label) at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (A_title) at (top plot.north);
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\second},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\freqMin}{\freqMax},
+            two ticks y axis labels={\freqMinText}{\freqMaxText},
+            at={($(top plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_all_mismatch_freq_error_avg.csv}{data/controller_mismatch_all_mismatch_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={\gsynMin}{\gsynMax},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_all_mismatch_gsyn_avg.csv}{data/controller_mismatch_all_mismatch_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={\gsmMin}{\gsmMax},
+            %x unit = -,
+            two ticks x axis={\xminMisLow}{\xmaxMisLow},
+            two ticks x axis labels={\xminMisLowText}{\xmaxMisLowText},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=all last plot,
+        ]
+        \probplot{data/controller_mismatch_all_mismatch_gsm_avg.csv}{data/controller_mismatch_all_mismatch_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+
+    \pgfplotsset{
+        xmin=\xminMisHigh,xmax=\xmaxMisHigh,
+    }
+
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\ampMin}{\ampMax},
+            two ticks y axis labels={\ampMinText}{\ampMaxText},
+            middle y axis style,
+            at={($(top plot.south east) + (\plotXsep,0)$)},
+            name=top plot,
+            legend columns=2,
+            legend cell align=left,
+            legend style={draw=none,fill=none,font=\scriptsize,row sep=-0.12cm,/tikz/every even column/.append style={column sep=-0.1cm},
+            at={(0.0,1)}, anchor=north west,yshift=0.1cm,inner xsep=0pt, inner ysep=0pt},
+            legend pos=north west,
+        ]
+        \probplot{data/controller_mismatch_amp_mod_log_mismatch_amp_error_avg.csv}{data/controller_mismatch_amp_mod_log_mismatch_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        
+        %\addlegendimage{custom circle legend={fill=colorDotError,draw=none}};
+        %\addlegendentry{}
+        %\addlegendimage{custom circle legend={fill=colorDotParam,draw=none}};
+
+        \addlegendimage{custom line mark legend={draw=colorDotError,thin}};
+        \addlegendentry{}
+        \addlegendimage{custom line mark legend={draw=colorDotParam,thin}};
+        
+        \addlegendentry{Individual sim}
+    
+        \addlegendimage{custom line legend={draw=colorLineError,very thick}}
+        \addlegendentry{}
+        \addlegendimage{custom line legend={draw=colorLineParam,very thick}}
+        \addlegendentry{Median value}
+
+        \addlegendimage{custom area legend={fill=colorLAreaError,draw=none}}
+        \addlegendentry{}
+        \addlegendimage{custom area legend={fill=colorLAreaParam,draw=none}}
+        %\addlegendentry{50\% interval}
+        \addlegendentry{1\textsuperscript{st}-3\textsuperscript{rd} quartiles}
+
+        \coordinate (B_label)at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (B_title) at (top plot.north);
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\second},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\freqMin}{\freqMax},
+            two ticks y axis labels={\freqMinText}{\freqMaxText},
+            middle y axis style,
+            at={($(top plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_amp_mod_log_mismatch_freq_error_avg.csv}{data/controller_mismatch_amp_mod_log_mismatch_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={\gsynMin}{\gsynMax},
+            middle y axis style,
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_amp_mod_log_mismatch_gsyn_avg.csv}{data/controller_mismatch_amp_mod_log_mismatch_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={\gsmMin}{\gsmMax},
+            middle y axis style,
+            %x unit = -,
+            two ticks x axis={\xminMisHigh}{\xmaxMisHigh},
+            two ticks x axis labels={\xminMisHighText}{\xmaxMisHighText},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_amp_mod_log_mismatch_gsm_avg.csv}{data/controller_mismatch_amp_mod_log_mismatch_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+
+    \pgfplotsset{
+        xmin=\xminMisLow,xmax=\xmaxMisLow,
+    }
+
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\ampMin}{\ampMax},
+            two ticks y axis labels={\ampMinText}{\ampMaxText},
+            middle y axis style,
+            at={($(top plot.south east) + (\plotXsep,0)$)},
+            name=top plot,
+        ]
+        \probplot{data/controller_mismatch_amp_log_mismatch_amp_error_avg.csv}{data/controller_mismatch_amp_log_mismatch_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        \coordinate (C_label)at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (C_title) at (top plot.north);
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\second},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\freqMin}{\freqMax},
+            two ticks y axis labels={\freqMinText}{\freqMaxText},
+            middle y axis style,
+            at={($(top plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot, 
+        ]
+        \probplot{data/controller_mismatch_amp_log_mismatch_freq_error_avg.csv}{data/controller_mismatch_amp_log_mismatch_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={\gsynMin}{\gsynMax},
+            middle y axis style,
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_amp_log_mismatch_gsyn_avg.csv}{data/controller_mismatch_amp_log_mismatch_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={\gsmMin}{\gsmMax},
+            middle y axis style,
+            %x unit = -,
+            two ticks x axis={\xminMisLow}{\xmaxMisLow},
+            two ticks x axis labels={\xminMisLowText}{\xmaxMisLowText},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_amp_log_mismatch_gsm_avg.csv}{data/controller_mismatch_amp_log_mismatch_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+
+    \pgfplotsset{
+        xmin=\xminMisLow,xmax=\xmaxMisLow,
+    }
+
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\ampMin}{\ampMax},
+            two ticks y axis labels={\ampMinText}{\ampMaxText},
+            at={($(all last plot.south west) + (0,-\groupplotYsep)$)},
+            anchor=north west,
+            name=top plot,
+        ]
+        \probplot{data/controller_mismatch_bias_mismatch_amp_error_avg.csv}{data/controller_mismatch_bias_mismatch_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        \coordinate (D_label)at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (D_title) at (top plot.north);
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\second},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\freqMin}{\freqMax},
+            two ticks y axis labels={\freqMinText}{\freqMaxText},
+            at={($(top plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_bias_mismatch_freq_error_avg.csv}{data/controller_mismatch_bias_mismatch_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={\gsynMin}{\gsynMax},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_bias_mismatch_gsyn_avg.csv}{data/controller_mismatch_bias_mismatch_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={\gsmMin}{\gsmMax},
+            %x unit = -,
+            two ticks x axis={\xminMisLow}{\xmaxMisLow},
+            two ticks x axis labels={\xminMisLowText}{\xmaxMisLowText},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_bias_mismatch_gsm_avg.csv}{data/controller_mismatch_bias_mismatch_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+
+    \pgfplotsset{
+        xmin=\xminMisHigh,xmax=\xmaxMisHigh,
+    }
+
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\ampMin}{\ampMax},
+            two ticks y axis labels={\ampMinText}{\ampMaxText},
+            middle y axis style,
+            at={($(top plot.south east) + (\plotXsep,0)$)},
+            name=top plot,
+        ]
+        \probplot{data/controller_mismatch_timescale_log_mismatch_amp_error_avg.csv}{data/controller_mismatch_timescale_log_mismatch_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        \coordinate (E_label) at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (E_title) at (top plot.north);
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\second},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\freqMin}{\freqMax},
+            two ticks y axis labels={\freqMinText}{\freqMaxText},
+            middle y axis style,
+            at={($(top plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_timescale_log_mismatch_freq_error_avg.csv}{data/controller_mismatch_timescale_log_mismatch_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={\gsynMin}{\gsynMax},
+            middle y axis style,
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_timescale_log_mismatch_gsyn_avg.csv}{data/controller_mismatch_timescale_log_mismatch_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={\gsmMin}{\gsmMax},
+            middle y axis style,
+            %x unit = -,
+            two ticks x axis={\xminMisHigh}{\xmaxMisHigh},
+            two ticks x axis labels={\xminMisHighText}{\xmaxMisHighText},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_timescale_log_mismatch_gsm_avg.csv}{data/controller_mismatch_timescale_log_mismatch_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+
+    \pgfplotsset{
+        xmin=\xminMisLow,xmax=\xmaxMisLow,
+    }
+
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\ampMin}{\ampMax},
+            two ticks y axis labels={\ampMinText}{\ampMaxText},
+            middle y axis style,
+            at={($(top plot.south east) + (\plotXsep,0)$)},
+            name=top plot,
+        ]
+        \probplot{data/controller_mismatch_gain_log_mismatch_amp_error_avg.csv}{data/controller_mismatch_gain_log_mismatch_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        \coordinate (F_label) at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (F_title) at (top plot.north);
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\second},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={\freqMin}{\freqMax},
+            two ticks y axis labels={\freqMinText}{\freqMaxText},
+            middle y axis style,
+            at={($(top plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_gain_log_mismatch_freq_error_avg.csv}{data/controller_mismatch_gain_log_mismatch_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={\gsynMin}{\gsynMax},
+            middle y axis style,
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_gain_log_mismatch_gsyn_avg.csv}{data/controller_mismatch_gain_log_mismatch_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidth,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={\gsmMin}{\gsmMax},
+            middle y axis style,
+            %x unit = -,
+            two ticks x axis={\xminMisLow}{\xmaxMisLow},
+            two ticks x axis labels={\xminMisLowText}{\xmaxMisLowText},
+            at={($(prev plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=prev plot,
+        ]
+        \probplot{data/controller_mismatch_gain_log_mismatch_gsm_avg.csv}{data/controller_mismatch_gain_log_mismatch_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+    \node[font=\Large\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (A_label) {A};
+    \node[font=\Large\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (B_label) {B};
+    \node[font=\Large\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (C_label) {C};
+    \node[font=\Large\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (D_label) {D};
+    \node[font=\Large\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (E_label) {E};
+    \node[font=\Large\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (F_label) {F};
+    %\node[font=\LARGE\bfseries, above] at (A_label) {A};
+    %\node[font=\LARGE\bfseries, above left] at (A_label-|B_label) {B};
+
+    \node[title style, yshift=\titleYoff, anchor=south] at (A_title) {All};
+    \node[title style, yshift=\titleYoff, anchor=south] at (B_title) {Mod Gains};
+    \node[title style, yshift=\titleYoff, anchor=south] at (C_title) {Gains};
+    \node[title style, yshift=\titleYoff, anchor=south] at (D_title) {Biases};
+    \node[title style, yshift=\titleYoff, anchor=south] at (E_title) {Timescales};
+    \node[title style, yshift=\titleYoff, anchor=south] at (F_title) {Slopes};
+
+    \coordinate (top_left_bb) at (current bounding box.north west);
+    \coordinate (bot_left_bb) at (current bounding box.south west);
+    \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+    \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+    %\draw[red] (current bounding box.north west) --(current bounding box.south west) -- (current bounding box.south east) -- (current bounding box.north east) -- cycle;
+    %\draw (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+\end{tikzpicture}
+
+\end{document}

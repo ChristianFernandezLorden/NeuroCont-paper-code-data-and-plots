@@ -1,0 +1,250 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit, math}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+
+\input{../tikzdefinitions.tex}
+\input{../pgfplots_style_setup.tex}
+\pgfplotsset{ 
+    scale only axis,
+    detached axis,
+    %clip=false,
+    every axis plot/.style={
+        no markers,
+        miter limit=2,
+    },
+}
+
+\pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+\begin{document}
+    \colorlet{inColor}{natureSkyBlue}
+    \colorlet{in2Color}{natureBluishGreen}
+    \colorlet{outColor}{natureOrange}
+    \colorlet{out2Color}{natureVermilion} 
+    \colorlet{axisColor}{black!20}
+    \colorlet{plotGreyColor}{black!60}
+    \colorlet{textGreyColor}{black!60}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            font = \normalsize,
+            panel node/.style={line width=\PanelLineWidth, rounded corners=2mm, inner sep=0pt},
+            panel letter/.style={font=\bfseries\Large, text=textGreyColor, inner sep=0.0cm, anchor=north west},
+            panel show style/.style={},
+            panel show/.is choice,
+            panel show/on/.style={panel show style/.append style={draw=black}},
+            panel show/off/.style={panel show style/.append style={draw=none}},
+            panel show=off,
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+        ]
+        \pgfmathsetlengthmacro{\PanelXSpacing}{0.2cm}
+        \pgfmathsetlengthmacro{\PanelYSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\PageWidth}{372pt}
+        \pgfmathsetlengthmacro{\FigureWidth}{\PageWidth*0.75}
+        \pgfmathsetlengthmacro{\FigureHeight}{\PageWidth*0.4}
+
+        \pgfmathsetlengthmacro{\FullPanelWidth}{\FigureWidth - 2*\PanelLineWidth - \PanelXSpacing}
+        \pgfmathsetlengthmacro{\PlotPanelWidth}{\FullPanelWidth*0.6}
+        \pgfmathsetlengthmacro{\DiagramPanelWidth}{\FullPanelWidth - \PlotPanelWidth}
+
+        \pgfmathsetlengthmacro{\FullPanelHeight}{\FigureHeight - \PanelLineWidth}
+
+
+        % Inside Panel Spacing
+        \pgfmathsetlengthmacro{\TopSpacingPanel}{0.2cm}
+        \pgfmathsetlengthmacro{\TopSpacingPanelMod}{0.2cm + \TopSpacingPanel}
+        \pgfmathsetlengthmacro{\BotSpacingPanel}{0.6cm}
+        \pgfmathsetlengthmacro{\RightSpacingPanel}{0.35cm}
+        \pgfmathsetlengthmacro{\LabelSpacing}{0.45cm + \RightSpacingPanel}
+        \pgfmathsetlengthmacro{\BaseSpacing}{0.25cm+0.5*0.6666em}
+        \pgfmathsetlengthmacro{\PlotHeight}{1cm}
+        \pgfmathsetlengthmacro{\PlotSep}{0.2cm}
+        \pgfmathsetlengthmacro{\PlotEventHeight}{0.4cm}
+        \pgfmathsetlengthmacro{\SquareBlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\NeuronBlockSize}{0.9cm}
+        \pgfmathsetlengthmacro{\DispBlockSize}{\SquareBlockSize*1.5}
+        \pgfmathsetlengthmacro{\AddBlockSize}{0.3cm}
+
+        \pgfmathsetlengthmacro{\TextSpacingBistable}{max(width("\noexpand\large $\delta_1$"), width("\noexpand\large $\delta_2$"), width("\noexpand\large $\delta_3$"))}
+
+        \iffalse
+        \pgfmathsetlengthmacro{\DiagramSpacing}{2.3cm}
+        \pgfmathsetlengthmacro{\SymbolSpacing}{0.8cm}
+        \pgfmathsetlengthmacro{\PlotXSpacing}{0.83cm}
+        \pgfmathsetlengthmacro{\BlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\NeuronSize}{0.9cm}
+        \pgfmathsetlengthmacro{\DispBlockSize}{1.1cm}
+        \pgfmathsetlengthmacro{\DispNeuronSize}{1.2cm}
+        \pgfmathsetlengthmacro{\CircleSize}{0.5cm}
+        \pgfmathsetlengthmacro{\PlotWidth}{(0.44)*372pt}
+        \pgfmathsetlengthmacro{\PlotHeight}{0.5*\PlotWidth+0.15cm}
+        \pgfmathsetlengthmacro{\LabelHeight}{\DiagramSpacing+0.8cm}
+
+        \pgfmathsetmacro{\NeuronPlotRatio}{0.65}
+        \pgfmathsetlengthmacro{\NeuronPlotHeight}{\PlotHeight*\NeuronPlotRatio}
+        \pgfmathsetlengthmacro{\InputPlotHeight}{\PlotHeight*(1-\NeuronPlotRatio)}
+        \fi
+
+        % Panel Layout
+        \begin{scope}[on background layer]
+            \node[panel node, anchor=north west, panel show style, minimum width=\DiagramPanelWidth, minimum height=\FullPanelHeight] (diagram_panel) at (0,0) {};
+            \node[panel node, anchor=north west, panel show style, minimum width=\PlotPanelWidth, minimum height=\FullPanelHeight] (plot_panel) at ([xshift=\PanelXSpacing]diagram_panel.north east) {};
+        \end{scope}
+
+
+        % Bistable System (diagram)
+
+        % center line = a*sqrt(3)/2 
+        % distance = (2/3)*a*sqrt(3)/2 = a*sqrt(3)/3
+        % sqrt(3)/3
+        \pgfmathsetmacro{\ratio}{0.5773502691896}
+        \pgfmathsetlengthmacro{\triangleSide}{2cm}
+        \pgfmathsetlengthmacro{\centerDistance}{\ratio * \triangleSide}
+        \begin{scope}[
+                shift={($(diagram_panel.center) + (0,\centerDistance*0.0)$)}, 
+                neuron style={draw style={}, mod input port distance=0.3cm, mod output port distance=0.4cm},
+            ]
+            %\node[panel letter] at (diagram_panel.north west) {A};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\MiddleSpacing}{0.3cm}
+            \pgfmathsetlengthmacro{\VerticalSpacing}{0.4cm}
+            \pgfmathsetlengthmacro{\VerticalFeedbackSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\NeuronSize}{0.8cm}
+
+            
+            \pic[fill=white, anchor=center] (second_neuron) at (-150:\centerDistance) {neuron block=\NeuronSize};
+            \pic[fill=white, anchor=center] (third_neuron) at (-30:\centerDistance) {neuron block=\NeuronSize};
+            \pic[fill=white, anchor=center] (first_neuron) at (90:\centerDistance) {neuron block=\NeuronSize};
+
+            \path[facilitated inhibition arrow, very thick, plotGreyColor] (second_neuron.20) edge[bend left=20] node[midway, above=-2pt, text=textGreyColor, font=\scriptsize] {$a\cdot g_\text{syn}$} (third_neuron.160);
+            \path[facilitated inhibition arrow] (third_neuron.-160) edge[bend left=20] node[midway, below, font=\scriptsize] {$g_\text{syn}$} (second_neuron.-20);
+
+            \path[facilitated inhibition arrow] (second_neuron.80) edge[bend left=20] node[midway, left, font=\scriptsize] {$g_\text{syn}$} (first_neuron.-140);
+            \path[facilitated inhibition arrow, very thick, plotGreyColor] (first_neuron.-100) edge[bend left=20] (second_neuron.40);
+
+            \path[facilitated inhibition arrow] (first_neuron.-60) edge node[midway, right, font=\scriptsize] {$g_\text{syn}$} (third_neuron.120);
+
+            \node[circle, inner sep=1pt, anchor=-90] at (first_neuron.90) {1};
+            \node[circle, inner sep=1pt, anchor=30] at (second_neuron.-150) {2};
+            \node[circle, inner sep=1pt, anchor=150] at (third_neuron.-30) {3};
+
+            \node[anchor=north, text=inColor] at ([yshift=-\VerticalSpacing]second_neuron.south) {$a=0.3$};
+            \node[anchor=north, text=in2Color] at ([yshift=-\VerticalSpacing]third_neuron.south) {$a=0.01$};
+        \end{scope}
+
+        % Bistable System (plots)
+        \begin{scope}[
+                shift={(plot_panel.center)}, 
+            ]
+            %\node[panel letter] at (plot_panel.north west) {B};
+            \pgfplotsset{ 
+                width=\PlotPanelWidth-\TextSpacingBistable-\BaseSpacing,
+                xmin=0, xmax=5,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_3$},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotEventHeight,
+                    name=third neuron plot 1,
+                    at={($(plot_panel.south east) + (-\PanelLineWidth/2,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0}{5},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[draw=in2Color, thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron3_a015.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_2$},
+                    height=\PlotEventHeight,
+                    name=second neuron plot 1,
+                    at={($(third neuron plot 1.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=in2Color, thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron2_a015.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_1$},
+                    height=\PlotEventHeight,
+                    name=first neuron plot 1,
+                    at={($(second neuron plot 1.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=in2Color, thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron1_a015.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_3$},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotEventHeight,
+                    name=third neuron plot 2,
+                    at={($(first neuron plot 1.north east) + (0,\PlotSep+\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0}{5},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[draw=inColor, thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron3_a05.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_2$},
+                    height=\PlotEventHeight,
+                    name=second neuron plot 2,
+                    at={($(third neuron plot 2.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=inColor, thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron2_a05.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_1$},
+                    height=\PlotEventHeight,
+                    name=first neuron plot 2,
+                    at={($(second neuron plot 2.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=inColor, thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron1_a05.csv};
+            \end{axis}
+        \end{scope}
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

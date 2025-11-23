@@ -1,0 +1,475 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit, math}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+
+\input{../tikzdefinitions.tex}
+\input{../pgfplots_style_setup.tex}
+\pgfplotsset{ 
+    every axis/.append style={scale only axis},
+    detached axis,
+    %clip=false,
+    every axis plot/.style={
+        no markers,
+        miter limit=2,
+    },
+}
+
+\pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+\begin{document}
+    %\colorlet{inColor}{natureSkyBlue}
+    %\colorlet{in2Color}{natureBluishGreen}
+    %\colorlet{outColor}{natureOrange}
+    %\colorlet{out2Color}{natureVermilion} 
+    \colorlet{inColor}{black}
+    \colorlet{in2Color}{black}
+    \colorlet{outColor}{black}
+    \colorlet{out2Color}{black} 
+    \colorlet{axisColor}{black!20}
+    \colorlet{plotGreyColor}{black!60}
+    \colorlet{textGreyColor}{black!60}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            font = \normalsize,
+            panel node/.style={line width=\PanelLineWidth, rounded corners=2mm, inner sep=0pt},
+            panel letter/.style={font=\bfseries\Large, text=textGreyColor, inner sep=0.0cm, anchor=north west},
+            panel show style/.style={},
+            panel show/.is choice,
+            panel show/on/.style={panel show style/.append style={draw=black}},
+            panel show/off/.style={panel show style/.append style={draw=none}},
+            panel show=off,
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+        ]
+        \pgfmathsetlengthmacro{\PanelXSpacing}{0.0cm}
+        \pgfmathsetlengthmacro{\PanelYSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\PageWidth}{372pt}
+        \pgfmathsetlengthmacro{\FigureWidth}{\PageWidth*0.87}
+        \pgfmathsetlengthmacro{\FigureHeight}{\PageWidth*0.97}
+
+        \pgfmathsetlengthmacro{\FullPanelWidth}{\FigureWidth - 2*\PanelLineWidth - \PanelXSpacing}
+        \pgfmathsetlengthmacro{\PlotPanelWidth}{3*\FullPanelWidth/7}
+        \pgfmathsetlengthmacro{\DiagramPanelWidth}{\FullPanelWidth - \PlotPanelWidth}
+
+        \pgfmathsetlengthmacro{\FullPanelHeight}{\FigureHeight - 3*\PanelLineWidth - 2*\PanelYSpacing}
+        \pgfmathsetlengthmacro{\BistablePanelHeight}{0.34*\FullPanelHeight}
+        \pgfmathsetlengthmacro{\EventdemuxPanelHeight}{0.45
+        *\FullPanelHeight}
+        \pgfmathsetlengthmacro{\ThresholdPanelHeight}{\FullPanelHeight - \BistablePanelHeight - \EventdemuxPanelHeight}
+
+
+        % Inside Panel Spacing
+        \pgfmathsetlengthmacro{\TopSpacingPanel}{0.2cm}
+        \pgfmathsetlengthmacro{\TopSpacingPanelMod}{0.2cm + \TopSpacingPanel}
+        \pgfmathsetlengthmacro{\BotSpacingPanel}{0.6cm}
+        \pgfmathsetlengthmacro{\RightSpacingPanel}{0.35cm}
+        \pgfmathsetlengthmacro{\LabelSpacing}{0.45cm + \RightSpacingPanel}
+        \pgfmathsetlengthmacro{\BaseSpacing}{0.25cm+0.6666em}
+        \pgfmathsetlengthmacro{\PlotHeight}{1cm}
+        \pgfmathsetlengthmacro{\PlotSep}{0.2cm}
+        \pgfmathsetlengthmacro{\PlotEventHeight}{0.4cm}
+        \pgfmathsetlengthmacro{\SquareBlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\NeuronBlockSize}{0.9cm}
+        \pgfmathsetlengthmacro{\DispBlockSize}{\SquareBlockSize*1.5}
+        \pgfmathsetlengthmacro{\AddBlockSize}{0.3cm}
+
+        \pgfmathsetlengthmacro{\TextSpacingBistable}{max(width("\noexpand\large $\delta_+$"), width("\noexpand\large $\delta_-$"), width("\noexpand\large $s$"))}
+
+        \iffalse
+        \pgfmathsetlengthmacro{\DiagramSpacing}{2.3cm}
+        \pgfmathsetlengthmacro{\SymbolSpacing}{0.8cm}
+        \pgfmathsetlengthmacro{\PlotXSpacing}{0.83cm}
+        \pgfmathsetlengthmacro{\BlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\NeuronSize}{0.9cm}
+        \pgfmathsetlengthmacro{\DispBlockSize}{1.1cm}
+        \pgfmathsetlengthmacro{\DispNeuronSize}{1.2cm}
+        \pgfmathsetlengthmacro{\CircleSize}{0.5cm}
+        \pgfmathsetlengthmacro{\PlotWidth}{(0.44)*372pt}
+        \pgfmathsetlengthmacro{\PlotHeight}{0.5*\PlotWidth+0.15cm}
+        \pgfmathsetlengthmacro{\LabelHeight}{\DiagramSpacing+0.8cm}
+
+        \pgfmathsetmacro{\NeuronPlotRatio}{0.65}
+        \pgfmathsetlengthmacro{\NeuronPlotHeight}{\PlotHeight*\NeuronPlotRatio}
+        \pgfmathsetlengthmacro{\InputPlotHeight}{\PlotHeight*(1-\NeuronPlotRatio)}
+        \fi
+
+        % Panel Layout
+        \begin{scope}[on background layer]
+            \node[panel node, anchor=north west, panel show style, minimum width=\DiagramPanelWidth, minimum height=\BistablePanelHeight] (bistable_diagram_panel) at (0,0) {};
+            \node[panel node, anchor=north west, panel show style, minimum width=\PlotPanelWidth, minimum height=\BistablePanelHeight] (bistable_plot_panel) at ([xshift=\PanelXSpacing]bistable_diagram_panel.north east) {};
+
+            \node[panel node, anchor=north west, panel show style, minimum width=\DiagramPanelWidth, minimum height=\ThresholdPanelHeight] (threshold_diagram_panel) at ([yshift=-\PanelYSpacing]bistable_diagram_panel.south west) {};
+            \node[panel node, anchor=north west, panel show style, minimum width=\PlotPanelWidth, minimum height=\ThresholdPanelHeight] (threshold_plot_panel) at ([xshift=\PanelXSpacing]threshold_diagram_panel.north east) {};
+
+            \node[panel node, anchor=north west, panel show style, minimum width=\DiagramPanelWidth, minimum height=\EventdemuxPanelHeight] (event_diagram_panel) at ([yshift=-\PanelYSpacing]threshold_diagram_panel.south west) {};
+            \node[panel node, anchor=north west, panel show style, minimum width=\PlotPanelWidth, minimum height=\EventdemuxPanelHeight] (event_plot_panel) at ([xshift=\PanelXSpacing]event_diagram_panel.north east) {};
+        \end{scope}
+
+
+        % Bistable System (diagram)
+        \begin{scope}[
+                shift={(bistable_diagram_panel.center)}, 
+            ]
+            \node[panel letter] at (bistable_diagram_panel.north west) {A};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\MiddleSpacing}{0.3cm}
+            \pgfmathsetlengthmacro{\VerticalSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\VerticalFeedbackSpacing}{0.2cm}
+
+            \iffalse % Flush left the diagram
+            \node[anchor=west] (in_pos_event) at ([yshift=-\TopSpacingPanel - \SquareBlockSize/2]bistable_diagram_panel.north west) {$\eventsymb_+$};
+
+            \pic[fill=white, anchor=west] (tanh_pos_event_box) at ([xshift=\InputOutputSpacing]in_pos_event.east) {tanh block=\SquareBlockSize};
+
+            \pic[fill=white,add style={sign big=plus},anchor=west] (add_in_circle) at ([yshift=-\VerticalSpacing-\AddBlockSize/2]tanh_pos_event_box.south east) {add block=\AddBlockSize};
+
+            \pic[fill=white, anchor=north east, tanh style={reversed}] (tanh_neg_event_box) at ([yshift=-\VerticalSpacing-\AddBlockSize/2]add_in_circle.west) {tanh block=\SquareBlockSize};
+
+            \node[anchor=east] (in_neg_event) at ([xshift=-\InputOutputSpacing]tanh_neg_event_box.west) {$\eventsymb_-$};
+
+            \pic[fill=white,add style={sign big=plus},anchor=west] (add_circle) at ([xshift=\MiddleSpacing]add_in_circle.east) {add block=\AddBlockSize};
+
+            \pic[fill=white, anchor=west] (low_pass_box) at ([xshift=\MiddleSpacing]add_circle.east) {lowpass block=\SquareBlockSize};
+    
+            \pic[fill=white, anchor=west] (tanh_box) at ([xshift=\MiddleSpacing]low_pass_box.east) {tanh block=\SquareBlockSize};
+
+            \node[anchor=west] (out_signal) at ([xshift=\MiddleSpacing+\InputOutputSpacing]tanh_box.east) {$s$};
+            \fi
+
+            
+
+            \pic[fill=white, anchor=north] (low_pass_box) at ([shift={(\AddBlockSize,-\TopSpacingPanel - \SquareBlockSize)}]bistable_diagram_panel.north) {lowpass block=\SquareBlockSize};
+
+            \pic[fill=white,add style={sign big=plus},anchor=east] (add_circle) at ([xshift=-\MiddleSpacing]low_pass_box.west) {add block=\AddBlockSize};
+
+            \pic[fill=white,add style={sign big=plus},anchor=east] (add_in_circle) at ([xshift=-\MiddleSpacing]add_circle.west) {add block=\AddBlockSize};
+
+            \pic[fill=white, anchor=south east] (tanh_pos_event_box) at ([yshift=\VerticalSpacing+\AddBlockSize/2]add_in_circle.west) {tanh block=\SquareBlockSize};
+            
+            \pic[fill=white, anchor=north east, tanh style={reversed}] (tanh_neg_event_box) at ([yshift=-\VerticalSpacing-\AddBlockSize/2]add_in_circle.west) {tanh block=\SquareBlockSize};
+
+            \node[anchor=east] (in_pos_event) at ([xshift=-\InputOutputSpacing]tanh_pos_event_box.west) {$\eventsymb_+$};
+
+            \node[anchor=east] (in_neg_event) at ([xshift=-\InputOutputSpacing]tanh_neg_event_box.west) {$\eventsymb_-$};
+            %%%% good
+    
+            \pic[fill=white, anchor=west] (tanh_box) at ([xshift=\MiddleSpacing]low_pass_box.east) {tanh block=\SquareBlockSize};
+
+            \node[anchor=west] (out_signal) at ([xshift=\MiddleSpacing+\InputOutputSpacing]tanh_box.east) {$s$};
+
+            \coordinate (feedback_height) at ([yshift=-\VerticalFeedbackSpacing]low_pass_box.south);
+            
+            \draw[connection arrow] (in_pos_event.east) -- (tanh_pos_event_box.west);
+            \draw[connection arrow] (tanh_pos_event_box.east) -| (add_in_circle.north);
+
+            \draw[connection arrow] (in_neg_event.east) -- (tanh_neg_event_box.west);
+            \draw[connection arrow] (tanh_neg_event_box.east) -| (add_in_circle.south);
+            
+            \draw[connection arrow] (add_in_circle.east) -- (add_circle.west);
+            
+            \draw[connection arrow] (tanh_box.east) -- (out_signal.west);
+            
+            \draw[connection arrow] (add_circle.east) -- (low_pass_box.west);
+
+            \draw[connection arrow] (tanh_box.east) -- ([xshift=\MiddleSpacing]tanh_box.east) |- (feedback_height) -| (add_circle.south);
+
+            \draw[connection arrow] (low_pass_box.east) -- (tanh_box.west);
+
+            
+            \pgfmathsetlengthmacro{\BlockInputOutputSpacing}{0.5cm}
+
+            \pic[fill=white, very thick, bistable style={draw style={very thick}}, anchor=south] (bistable) at (bistable_diagram_panel.south) {bistable block=\DispBlockSize};
+
+            \draw[connection arrow, very thick, inColor] ([xshift=-\BlockInputOutputSpacing]bistable-in-pos) node[anchor=east, font=\large, text=inColor] {$\eventsymb_+$} -- (bistable-in-pos);
+            \draw[connection arrow, very thick, in2Color] ([xshift=-\BlockInputOutputSpacing]bistable-in-neg) node[anchor=east, font=\large, text=in2Color] {$\eventsymb_-$} -- (bistable-in-neg);
+            
+            \draw[connection arrow, very thick, outColor] (bistable.east) -- ([xshift=\BlockInputOutputSpacing]bistable.east) node[anchor=west, font=\large, text=outColor] {$s$};
+        \end{scope}
+
+        % Bistable System (plots)
+        \begin{scope}[
+                shift={(bistable_plot_panel.center)}, 
+            ]
+            \pgfplotsset{ 
+                width=\PlotPanelWidth-\TextSpacingBistable-\BaseSpacing,
+                xmin=0.5, xmax=2.75,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_-$},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotEventHeight,
+                    name=bistable neg input plot,
+                    at={($(bistable_plot_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0.5}{2.75},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[color=in2Color,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/bistable_input_neg_spike.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_+$},
+                    height=\PlotEventHeight,
+                    name=bistable pos input plot,
+                    at={($(bistable neg input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0.0}{1.0},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[color=inColor, thick, ycomb] table [col sep=comma, x=time, y=value]{data/bistable_input_pos_spike.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$s$},
+                    height=\PlotHeight,
+                    name=bistable output plot,
+                    at={($(bistable pos input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-5.25}{5.25},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[color=outColor, thick] table [col sep=comma, x=time, y=value]{data/bistable_tanh.csv};
+            \end{axis}
+        \end{scope}
+
+        % square + add + mid + add + mid + square + mid + square + mid 
+        % 3square + 2add + 4mid => mid = add + 2 mid + 1.5square
+        % milieu lowpas = 1.5 quare +2mid de right => manque 1 add
+        % off set by 2 add should be enough 
+
+        % Threshold detector (diagram)
+        \begin{scope}[
+                shift={(threshold_diagram_panel.center)}, 
+            ]
+            \node[panel letter] at (threshold_diagram_panel.north west) {B};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\MiddleSpacing}{0.3cm}
+
+            \iffalse % Flush left the diagram
+            \node[anchor=west] (in_signal) at ([yshift=-\TopSpacingPanel - \SquareBlockSize/2]threshold_diagram_panel.north west) {$s$};
+
+            \pic[fill=white, anchor=west, tanh style={reversed}] (tanh_in) at ([xshift=\InputOutputSpacing]in_signal.east) {tanh block=\SquareBlockSize};
+            
+            \pic[fill=white, anchor=west] (neuron) at ([xshift=\MiddleSpacing]tanh_in.east) {neuron block=\NeuronBlockSize};
+
+            \node[anchor=west] (out_event) at ([xshift=\InputOutputSpacing]neuron.east) {$\eventsymb$};
+            \fi
+            
+            \pic[fill=white, anchor=north east, tanh style={reversed}] (tanh_in) at ([shift={(-\MiddleSpacing/2 - \NeuronBlockSize/2 + \SquareBlockSize/2,-\TopSpacingPanel)}]threshold_diagram_panel.north) {tanh block=\SquareBlockSize};
+
+            \node[anchor=east] (in_signal) at ([xshift=-\InputOutputSpacing]tanh_in.west) {$s$};
+            
+            \pic[fill=white, anchor=west] (neuron) at ([xshift=\MiddleSpacing]tanh_in.east) {neuron block=\NeuronBlockSize};
+
+            \node[anchor=south west, inner sep=0.1pt] (type) at (neuron.north east) {$\mathrm{I\! I\! I}$};
+
+            \node[anchor=west] (out_event) at ([xshift=\InputOutputSpacing]neuron.east) {$\eventsymb$};
+
+            \draw[connection arrow] (in_signal.east) -- (tanh_in.west);
+
+            \draw[connection arrow] (tanh_in.east) -- (neuron.west);
+            
+            \draw[connection arrow] (neuron.east) -- (out_event.west);
+
+            \pgfmathsetlengthmacro{\BlockInputOutputSpacing}{0.5cm}
+
+            \pic[fill=white, very thick, threshold style={draw style={very thick}, reversed}, anchor=south] (threshold) at (threshold_diagram_panel.south) {threshold block=\DispBlockSize};
+
+            \draw[connection arrow, very thick, inColor] ([xshift=-\BlockInputOutputSpacing]threshold.west) node[anchor=east, font=\large, text=inColor] {$s$} -- (threshold.west);
+
+            \draw[connection arrow, very thick, outColor] (threshold.east) -- ([xshift=\BlockInputOutputSpacing]threshold.east) node[anchor=west, font=\large, text=outColor] {$\eventsymb$};
+
+        \end{scope}
+        
+        % Threshold System (plots)
+        \begin{scope}[
+                shift={(threshold_plot_panel.center)}, 
+            ]
+            \pgfplotsset{ 
+                width=\PlotPanelWidth-\TextSpacingBistable-\BaseSpacing,
+                xmin=0, xmax=1,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    ylabel={$s$},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotHeight,
+                    name=threshold input plot,
+                    at={($(threshold_plot_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={-5.25}{5.25},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0}{1},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[color=inColor,  thick] table [col sep=comma, x=time, y=value]{data/rebound_input.csv};
+                \addplot[color=axisColor,  thick, dashed, domain=0:3] {0};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb$},
+                    height=\PlotEventHeight,
+                    name=bistable output plot,
+                    at={($(threshold input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[color=outColor,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/rebound_output_spike.csv};
+            \end{axis}
+        \end{scope}
+
+
+        % Event demux (diagram)
+        \begin{scope}[
+                shift={(event_diagram_panel.center)}, 
+            ]
+            \node[panel letter] at (event_diagram_panel.north west) {C};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\VerticalSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\MiddleSpacing}{0.3cm}
+            \pgfmathsetlengthmacro{\LeftBreak}{0.3cm}
+            \pgfmathsetlengthmacro{\VerticalBotSpacing}{0.3cm}
+            
+            \pic[fill=white, anchor=north east] (tanh_pos_event_out) at ([shift={(0,-\TopSpacingPanelMod)}]event_diagram_panel.north) {tanh block=\SquareBlockSize};
+
+            \pic[fill=white, anchor=north west] (tanh_neg_event_out) at ([xshift=\MiddleSpacing]tanh_pos_event_out.south east) {tanh block=\SquareBlockSize};
+
+            \pic[fill=white, anchor=north, tanh style={reversed}] (tanh_neg_event_mod) at ([yshift=-\VerticalSpacing]tanh_neg_event_out-mod-start) {tanh block=\SquareBlockSize};
+
+            \pic[fill=white, anchor=north] (tanh_pos_event_mod) at (tanh_pos_event_out-mod-start|-tanh_neg_event_mod.north) {tanh block=\SquareBlockSize};
+
+            \coordinate (tanh_out_mid) at ($(tanh_pos_event_out.center)!0.5!(tanh_neg_event_out.center)$);
+
+            \node[anchor=east] (in_event) at ([xshift=-\InputOutputSpacing-\LeftBreak]tanh_pos_event_out.west|-tanh_out_mid) {$\eventsymb$};
+            \node[anchor=east] (in_signal) at ([yshift=-\VerticalBotSpacing]in_event.east|-tanh_pos_event_mod.south) {$s$};
+
+            \node[anchor=west] (out_neg_event) at ([xshift=\InputOutputSpacing]tanh_neg_event_out.east) {$\eventsymb_-$};
+            \node[anchor=west] (out_pos_event) at (out_neg_event.west|-tanh_pos_event_out.east) {$\eventsymb_+$};
+            
+
+            \draw[connection arrow] (in_event.east) -| ([xshift=-\LeftBreak]tanh_pos_event_out.west) -- (tanh_pos_event_out.west);
+            \draw[connection arrow] (in_event.east) -| ([xshift=-\LeftBreak]tanh_pos_event_out.west|-tanh_neg_event_out.west) -- (tanh_neg_event_out.west);
+
+            \draw[connection arrow] (in_signal.east) -| (tanh_pos_event_mod.south);
+            \draw[connection arrow] (in_signal.east) -| (tanh_neg_event_mod.south);
+
+            \draw[connection arrow] (tanh_pos_event_out.east) -- (out_pos_event.west);
+            \draw[connection arrow] (tanh_neg_event_out.east) -- (out_neg_event.west);
+
+            \begin{scope}[on background layer]
+                \draw[modulation arrow] (tanh_pos_event_mod.north) -- (tanh_pos_event_out-mod-start) --  (tanh_pos_event_out-mod-end);
+                \draw[modulation arrow] (tanh_neg_event_mod.north) -- (tanh_neg_event_out-mod-start) --  (tanh_neg_event_out-mod-end);
+            \end{scope}
+
+            \pgfmathsetlengthmacro{\BlockInputOutputSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\BlockInputBotSpacing}{0.35cm}
+            
+            \node[anchor=south east, text=inColor] (signal_ev) at ([xshift=-\DispBlockSize/2 - \BlockInputOutputSpacing - \pgflinewidth/2]event_diagram_panel.south) {$s$};
+
+            \pic[fill=white, very thick, eventdemux style={draw style={very thick}}, anchor=south] (demux) at ([shift={(\BlockInputOutputSpacing+\DispBlockSize/2+ \pgflinewidth/2,\BlockInputBotSpacing)}]signal_ev.east) {eventdemux block=\DispBlockSize};
+
+            \draw[connection arrow, very thick, in2Color] ([xshift=-\BlockInputOutputSpacing]demux.west)  node[left, text=in2Color] (event_ev) {$\eventsymb$} -- (demux.west);
+            \draw[connection arrow, very thick,inColor] (signal_ev.east)  -| (demux.south);
+            \draw[connection arrow, very thick, outColor] (demux-pos out) -- ([xshift=\BlockInputOutputSpacing]demux-pos out) node[right, text=outColor] (ev_pos) {$\eventsymb_+$};
+            \draw[connection arrow, very thick, out2Color] (demux-neg out) -- ([xshift=\BlockInputOutputSpacing]demux-neg out) node[right, text=out2Color] (ev_neg) {$\eventsymb_-$};
+        \end{scope}
+
+        % Threshold System (plots)
+        \begin{scope}[
+                shift={(event_plot_panel.center)}, 
+            ]
+            \pgfplotsset{ 
+                width=\PlotPanelWidth-\TextSpacingBistable-\BaseSpacing,
+                xmin=0, xmax=10,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    ylabel={$s$},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotHeight,
+                    name=demux input signal plot,
+                    at={($(event_plot_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={-1.1}{1.1},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0}{10},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[color=inColor,  thick] table [col sep=comma, x=time, y=value]{data/eventdemux_signal.csv};
+                \addplot[color=axisColor,  thick, dashed, domain=0:10] {0};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb$},
+                    height=\PlotEventHeight,
+                    name=demux in event plot,
+                    at={($(demux input signal plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[color=in2Color,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/eventdemux_input_spike.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_-$},
+                    height=\PlotEventHeight,
+                    name=demux out event pos plot,
+                    at={($(demux in event plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[color=out2Color,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/eventdemux_output_pos_spike.csv};
+            \end{axis}
+
+            \begin{axis}[
+                    ylabel={$\eventsymb_+$},
+                    height=\PlotEventHeight,
+                    name=demux out event neg plot,
+                    at={($(demux out event pos plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[color=outColor,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/eventdemux_output_neg_spike.csv};
+            \end{axis}
+        \end{scope}
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

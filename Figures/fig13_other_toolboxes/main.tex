@@ -1,0 +1,109 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit, math}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\usepackage[outline]{contour}
+\contourlength{.09em}
+\renewcommand{\contour}[2]{#2}
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+% Too thick synapses 
+% neuron not dahsed
+% diagrams only in blacks
+%bigger sumation symbol
+% only a big plus
+
+% Fuse A and B panels
+% Put A/B on top of each other, then one column for C and one for D
+
+\input{../tikzdefinitions.tex}
+
+\begin{document}
+    \colorlet{Color1}{natureBlue}
+    \colorlet{Color2}{natureBluishGreen}
+    \colorlet{Color3}{natureReddishPurple}
+    \colorlet{Color4}{natureVermilion}
+
+    \pgfmathsetlengthmacro{\RegionLineWidth}{0.4pt}
+    \begin{tikzpicture}[
+            zone/.style n args={4}{ellipse, minimum width=#1, minimum height=#2, rotate=#3, fill=#4, opacity=0.7},
+            zone post/.style ={draw=black, line width=\RegionLineWidth},
+            toolbox text/.style ={font=\scriptsize,text=white},
+            name text/.style ={font=\normalsize,text=#1,align=left},
+        ]
+        \pgfmathsetlengthmacro{\PageWidth}{372pt*1}
+
+
+        \begin{scope}[blend group=soft light]
+            \node[zone={10cm}{4cm}{-30}{Color1}, save path=\pathA] (a) {};
+
+            \node[zone={8cm}{2cm}{0}{Color2}, save path=\pathB, anchor=-20] (b) at (a.-10) {};      
+
+            \node[zone={8cm}{2.2cm}{25}{Color3}, save path=\pathC, anchor=175] (c) at (b.-180) {};
+
+            \node[zone={8cm}{2.2cm}{50}{Color4}, save path=\pathD, anchor=180] (d) at (c.-175) {};
+
+        \end{scope}
+
+
+        \node[toolbox text, anchor=west] (snnTorch) at (a.180) {snnTorch};
+        \node[toolbox text, anchor=west] (hxtorch.snn) at (snnTorch.east) {hxtorch.snn};
+        \node[toolbox text, anchor=north west] (Spyx) at (snnTorch.south west) {Spyx};
+        \node[toolbox text, anchor=west] (BindsNET) at (Spyx.east) {BindsNET};
+        \node[toolbox text, anchor=west] (SpikingJelly) at (BindsNET.east) {SpikingJelly};
+        \node[toolbox text, anchor=north west] (Norse) at (Spyx.south west) {Norse};
+        \node[toolbox text, anchor=west] (jaxsnn) at (Norse.east) {jaxsnn};
+        \node[toolbox text, anchor=west] (Sinabs) at (jaxsnn.east) {Sinabs};
+        \node[toolbox text, anchor=north west] (Lava-DL) at (Norse.south) {Lava-DL};
+        \node[toolbox text, anchor=west] (Nengo) at (Lava-DL.east) {Nengo};
+        \node[toolbox text, anchor=north west] (NESTML) at (Lava-DL.south) {NESTML};
+        \node[toolbox text, anchor=west] (Brian 2) at (Nengo.east) {Brian 2};
+
+
+        \node[toolbox text, anchor=center] (Rockpool) at ($(b.center)!0.25!(b.east)$) {Rockpool};
+        \node[toolbox text, anchor=center] (Lava) at ($(c.center)!0.25!(c.east)$) {Lava};
+        \node[toolbox text, anchor=center] (GeNN) at ($(d.center)!0.25!(d.east)$) {GeNN};
+
+        \node[toolbox text, anchor=south, shift={(0.8cm,0.4cm)}] (CarlSIM) at (b.160) {CarlSIM};
+
+        \node[toolbox text, font=\Large\bfseries, anchor=west, shift={(0.25cm,0cm)}] (Ours) at (b.180) {Ours};
+
+        \node[name text={Color1}, anchor=south] at (a.165) {\contour{black}{Large-Scale SNN}};
+        \node[name text={Color2}, anchor=west] at (b.0) {\contour{black}{Variability}\\\contour{black}{Analysis}};
+        \node[name text={Color3}, anchor=west] at (c.0) {\contour{black}{Real-Time}\\\contour{black}{Control}};
+        \node[name text={Color4}, anchor=west] at (d.-5) {\contour{black}{Neuromodulation}};
+
+        %\node[name text={Color5}, anchor=west] at (e.0) {\contour{black}{Biological}\\\contour{black}{Modeling}};
+
+
+        %\node[draw=red, fit={(a) (b) (c) (d)}, inner sep=0pt] (a-bb){};
+        %\node[anchor=west, text=Color2!50] at (b.east) {\contour{black}{A}};
+
+        \path[zone post,use path=\pathA];
+        \path[zone post,use path=\pathB];
+        \path[zone post,use path=\pathC];
+        \path[zone post,use path=\pathD];
+        %\path[zone post,use path=\pathE];
+
+        %\useasboundingbox ([shift={(-\RegionLineWidth/2,-\RegionLineWidth/2)}]current bounding box.south west) rectangle ([shift={(\RegionLineWidth/2,\RegionLineWidth/2)}]current bounding box.north east);
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

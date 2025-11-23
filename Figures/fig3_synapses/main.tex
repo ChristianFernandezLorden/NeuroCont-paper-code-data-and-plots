@@ -1,0 +1,565 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit, math}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+% Too thick synapses 
+% neuron not dahsed
+% diagrams only in blacks
+%bigger sumation symbol
+% only a big plus
+
+% Fuse A and B panels
+% Put A/B on top of each other, then one column for C and one for D
+
+\input{../tikzdefinitions.tex}
+\input{../pgfplots_style_setup.tex}
+\pgfplotsset{ 
+    detached axis,
+    every axis plot/.style={
+        no markers,
+        miter limit=2,
+    },
+}
+
+\begin{document}
+    \colorlet{outColor}{natureSkyBlue}
+    \colorlet{out2Color}{natureBluishGreen}
+    %\colorlet{outColor}{black}
+    %\colorlet{out2Color}{black}
+    \colorlet{Color1}{natureSkyBlue}
+    \colorlet{Color2}{natureBluishGreen}
+    \colorlet{Color3}{natureOrange}
+    \colorlet{Color4}{natureVermilion}
+    \colorlet{fourthColor}{natureVermilion} 
+    \colorlet{axisColor}{black!20}
+    \colorlet{neuronColor}{black!10}
+    \colorlet{textGreyColor}{black!60}
+    \colorlet{plotGreyColor}{black!40}
+
+    \pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            fast dyn/.style={},%{draw=ulgRed, fill=white},
+            slow dyn/.style={},%{draw=ulgGreen, fill=white},
+            uslow dyn/.style={},%{draw=ulgBlue, fill=white},
+            pos conductance/.style={draw=ulgGreen, text=ulgGreen},
+            neg conductance/.style={draw=ulgRed, text=ulgRed},
+            font = \normalsize,
+            panel node/.style={line width=\PanelLineWidth, rounded corners=2mm, inner sep=0pt},
+            panel letter/.style={font=\bfseries\Large, text=textGreyColor, inner sep=0.0cm, anchor=north west},
+            panel show style/.style={},
+            panel show/.is choice,
+            panel show/on/.style={panel show style/.append style={draw=black}},
+            panel show/off/.style={panel show style/.append style={draw=none}},
+            panel show=off,
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+            zero text/.style={font=\small, text=plotGreyColor, inner sep=0.8pt},
+        ]
+
+        \pgfmathsetlengthmacro{\PanelXSpacing}{0.8cm}
+        \pgfmathsetlengthmacro{\PanelYSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\PageWidth}{372pt*1}
+        \pgfmathsetlengthmacro{\FigureHeight}{\PageWidth*0.79}
+        % Widths
+        \pgfmathsetlengthmacro{\FullPanelWidth}{\PageWidth - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\RightPanelWidth}{\FullPanelWidth/6 - \PanelXSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\LeftPanelWidth}{\FullPanelWidth - \RightPanelWidth - \PanelXSpacing - \PanelLineWidth}
+
+        \pgfmathsetlengthmacro{\LeftLeftPanelWidth}{\LeftPanelWidth/2.2 - \PanelXSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\LeftRightPanelWidth}{\LeftPanelWidth - \LeftLeftPanelWidth - \PanelXSpacing - \PanelLineWidth}
+        % Heights
+        \pgfmathsetlengthmacro{\FullPanelHeight}{\FigureHeight - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\FacilitationPanelHeight}{0.443*\FullPanelHeight - \PanelYSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\DepressionPanelHeight}{\FullPanelHeight - \FacilitationPanelHeight - \PanelYSpacing - \PanelLineWidth}
+        
+        \pgfmathsetlengthmacro{\ModulationPanelHeight}{0.63*\FullPanelHeight - \PanelYSpacing/2 - \PanelLineWidth}
+        \pgfmathsetlengthmacro{\ExamplePanelHeight}{\FullPanelHeight - \ModulationPanelHeight - \PanelYSpacing - \PanelLineWidth}
+
+        % Inside Panel Spacing
+        \pgfmathsetlengthmacro{\BaseSpacing}{0.25cm+0.6666em}
+        \pgfmathsetlengthmacro{\TextSpacingBot}{height("\noexpand\large $t$") + depth("\noexpand\large $t$")}
+        %\pgfmathsetlengthmacro{\BotSpacingPanel}{0.6cm}
+        \pgfmathsetlengthmacro{\BotSpacingPanel}{\TextSpacingBot + \BaseSpacing}
+
+        \pgfmathsetlengthmacro{\TopSpacingPanel}{0.2cm}
+        \pgfmathsetlengthmacro{\TopSpacingPanelMod}{0.2cm + \TopSpacingPanel}
+        \pgfmathsetlengthmacro{\RightSpacingPanel}{0.35cm}
+        \pgfmathsetlengthmacro{\LabelSpacing}{0.65cm + \RightSpacingPanel}
+        \pgfmathsetlengthmacro{\PlotHeight}{1cm}
+        \pgfmathsetlengthmacro{\PlotSynHeight}{0.5cm}
+        \pgfmathsetlengthmacro{\PlotEventHeight}{0.3cm}
+        \pgfmathsetlengthmacro{\PlotExampleHeight}{0.45cm}
+        \pgfmathsetlengthmacro{\PlotSep}{0.2cm}
+        \pgfmathsetlengthmacro{\SquareBlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\AddBlockSize}{0.3cm}
+        \pgfmathsetlengthmacro{\SynapseLength}{\LeftLeftPanelWidth*0.55}
+        \pgfmathsetlengthmacro{\SynapsePlotSep}{0.4cm}
+        \pgfmathsetlengthmacro{\PlotSynapseSep}{0.3cm}
+
+        
+        \pgfmathsetlengthmacro{\TextSpacingSyn}{max(width("\noexpand\large $\delta$"), width("\noexpand\large $I$"))}
+        \pgfmathsetlengthmacro{\TextSpacingMod}{max(width("\noexpand\large $\delta_+$"), width("\noexpand\large $\delta_-$"))}
+        \pgfmathsetlengthmacro{\TextSpacingExample}{max(width("\noexpand\large $V_1$"), width("\noexpand\large $V_2$"), width("\noexpand\large $V_3$"))}
+        
+        
+
+        
+        % Panel Layout
+        \begin{scope}[on background layer]
+
+        \node[panel node, anchor=north west, panel show style, minimum width=\LeftLeftPanelWidth, minimum height=\FacilitationPanelHeight] (facilitating_panel) at (0,0) {};
+        \node[panel node, anchor=north west, panel show style, minimum width=\LeftLeftPanelWidth, minimum height=\DepressionPanelHeight] (depressing_panel) at ([yshift=-\PanelYSpacing]facilitating_panel.south west) {};
+    
+        \node[panel node, anchor=north west, panel show style, minimum width=\LeftRightPanelWidth, minimum height=\ModulationPanelHeight] (modulation_panel) at ([xshift=\PanelXSpacing]facilitating_panel.north east) {};
+
+        
+        \node[panel node, anchor=north west, panel show style, minimum width=\LeftRightPanelWidth, minimum height=\ExamplePanelHeight] (example_panel) at ([yshift=-\PanelYSpacing]modulation_panel.south west) {};
+
+       %\node[panel node, anchor=north west, panel show style, minimum width=\RightPanelWidth, minimum height=\FullPanelHeight] (empty_panel) at ([xshift=\PanelXSpacing]modulation_panel.north east) {};
+        \end{scope}
+        
+        % --- Facilitationg Panel ---
+        \begin{scope}[
+                shift={(facilitating_panel.center)}, 
+            ]
+            \node[panel letter] at (facilitating_panel.north west) {A};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.45cm}
+            \pgfmathsetlengthmacro{\InternalSpacing}{0.35cm}
+            \pgfmathsetlengthmacro{\XOffset}{0.00cm}
+
+            % blocks
+            \pic[fill=white, anchor=north east] (lowpass_facil_block) at ([shift={(-\InternalSpacing/2 + \XOffset,-\TopSpacingPanel)}]facilitating_panel.north) {lowpass block=\SquareBlockSize};
+            \pic[fill=white, anchor=west] (tanh_facil_block) at ([xshift=\InternalSpacing]lowpass_facil_block.east) {tanh block=\SquareBlockSize};
+
+            % connections
+            \draw[connection arrow] ([xshift=-\InputOutputSpacing]lowpass_facil_block.west) node[left, text=black] {$\eventsymb$} -- (lowpass_facil_block.west);%\boldsymbol{
+            \draw[connection arrow] (tanh_facil_block.east) -- ([xshift=\InputOutputSpacing]tanh_facil_block.east) node[right, text=black] {$I$};
+            \draw[connection arrow] (lowpass_facil_block.east) -- (tanh_facil_block.west);
+
+            \pgfplotsset{ 
+                width=\LeftLeftPanelWidth-\TextSpacingSyn-\BaseSpacing,
+                xmin=-0.025, xmax=0.6,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$\eventsymb$}},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotEventHeight,
+                    name=facilitating input plot,
+                    at={($(facilitating_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={-0.025}{0.6},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[draw=black,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/facilitating_input_spike.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$I$}},
+                    height=\PlotSynHeight,
+                    name=facilitating inhib output plot,
+                    at={($(facilitating input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-2.2}{0.2},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                    clip=false,
+                ]
+                \addplot[draw=out2Color,  thick] table [col sep=comma, x=time, y expr={-\thisrow{value}}]{data/facilitating_output.csv} node[pos=0,left,zero text] {0};
+                %\node[zero text, above left] at (yticklabel* cs:1) {0};
+            \end{axis}
+
+            \coordinate (first_syn) at ([yshift=\PlotSep]facilitating inhib output plot.north-|facilitating_panel.center);
+            \draw[very thick, facilitated inhibition arrow, out2Color] ([xshift=-\SynapseLength/2]first_syn) -- ([xshift=\SynapseLength/2]first_syn);
+            %\draw[very thick, facilitated inhibition arrow] ([xshift=-\SynapseLength/2]first_syn) node[left, text=black, font=\scriptsize] {$\eventsymb$} -- ([xshift=\SynapseLength/2]first_syn) node[right, text=out2Color, font=\scriptsize] {$I$};
+            
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$I$}},
+                    height=\PlotSynHeight,
+                    name=facilitating exc output plot,
+                    at={($(facilitating inhib output plot.north east) + (0,\PlotSep+\SynapsePlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-0.2}{2.2},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                    clip=false,
+                ]
+                \addplot[draw=outColor,  thick] table [col sep=comma, x=time, y=value]{data/facilitating_output.csv} node[pos=0,left,zero text] {0};
+            \end{axis}
+
+            \coordinate (second_syn) at ([yshift=\PlotSep]facilitating exc output plot.north-|facilitating_panel.center);
+            \draw[very thick, facilitated excitation arrow, outColor] ([xshift=-\SynapseLength/2]second_syn) -- ([xshift=\SynapseLength/2]second_syn);
+            %\draw[very thick, facilitated excitation arrow] ([xshift=-\SynapseLength/2]second_syn) node[left, text=black, font=\scriptsize] {$\eventsymb$} -- ([xshift=\SynapseLength/2]second_syn) node[right, text=outColor, font=\scriptsize] {$I$};
+        \end{scope}
+
+        % --- Depressing Panel ---
+        \begin{scope}[
+                shift={(depressing_panel.center)}, 
+            ]
+            \node[panel letter] at (depressing_panel.north west) {B};
+            \pgfmathsetlengthmacro{\OutputSpacing}{0.35cm}
+            \pgfmathsetlengthmacro{\InputSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\InternalSpacing}{0.25cm}
+            \pgfmathsetlengthmacro{\VerticalSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\XOffset}{0.00cm}
+
+            % blocks
+            \pic[fill=white, anchor=north west] (tanh_out_depres_block) at ([shift={(\InternalSpacing/2 + \SquareBlockSize/2 + \XOffset,-\TopSpacingPanelMod)}]depressing_panel.north) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=north east, tanh style=reversed] (tanh_mod_depres_block) at ([yshift=-\VerticalSpacing]tanh_out_depres_block.south west) {tanh block=\SquareBlockSize};
+            %lowpass 
+            \pic[fill=white, anchor=east, lowpass style={tau text={d}}] (lowpass_depres_block) at ([xshift=-\InternalSpacing]tanh_mod_depres_block.west) {lowpass block=\SquareBlockSize};
+            %\pic[fill=white, anchor=west] (tanh_facil_block) at ([xshift=\InternalSpacing]lowpass_facil_block.east) {tanh block=\SquareBlockSize};
+
+    
+            \pic[fill=white, anchor=south] (lowpass_depres_block_main) at ([yshift=\VerticalSpacing]lowpass_depres_block.north) {lowpass block=\SquareBlockSize};
+
+            % connections
+            \draw[connection arrow] ([xshift=-\InputSpacing-\InternalSpacing]lowpass_depres_block.west|-tanh_out_depres_block.west) node[left] {$\eventsymb$} -- (lowpass_depres_block_main.west);
+            \draw[connection arrow] (tanh_out_depres_block.east) -- ([xshift=\OutputSpacing]tanh_out_depres_block.east) node[right] {$I$};
+            \draw[connection arrow] (lowpass_depres_block_main.east) -- (tanh_out_depres_block.west);
+            \draw[connection arrow] ([xshift=-\InputSpacing-\InternalSpacing]lowpass_depres_block.west|-tanh_out_depres_block.west) -- ([xshift=-\InternalSpacing]lowpass_depres_block.west|-tanh_out_depres_block.west) |- (lowpass_depres_block.west);
+            \draw[connection arrow] (lowpass_depres_block.east) -- (tanh_mod_depres_block.west);
+            \begin{scope}[on background layer]
+                \draw [modulation arrow] (tanh_mod_depres_block.east)  -| (tanh_out_depres_block-mod-start) -- (tanh_out_depres_block-mod-end);
+            \end{scope}
+
+            \pgfplotsset{ 
+                width=\LeftLeftPanelWidth-\TextSpacingSyn-\BaseSpacing,
+                xmin=-0.025, xmax=0.6,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$\eventsymb$}},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    height=\PlotEventHeight,
+                    name=depressing input plot,
+                    at={($(depressing_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={-0.025}{0.6},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[draw=black,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/depressing_input_spike.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$I$}},
+                    height=\PlotSynHeight,
+                    name=depressing inhib output plot,
+                    at={($(depressing input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-2.2}{0.2},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                    clip=false,
+                ]
+                \addplot[draw=out2Color,  thick] table [col sep=comma, x=time, y expr={-\thisrow{value}}]{data/depressing_output.csv} node[pos=0,left,zero text] {0};
+            \end{axis}
+
+            \coordinate (first_syn) at ([yshift=\PlotSep]depressing inhib output plot.north-|depressing_panel.center);
+            %\coordinate (first_syn) at ([yshift=\PlotSep]depressing inhib output plot.north);
+            %\draw[very thick, depressed inhibition arrow] ([xshift=-\SynapseLength/2]first_syn) node[left, text=black, font=\scriptsize] {$\eventsymb$} -- ([xshift=\SynapseLength/2]first_syn) node[right, text=out2Color, font=\scriptsize] {$I$};
+            \draw[very thick, depressed inhibition arrow, out2Color] ([xshift=-\SynapseLength/2]first_syn) -- ([xshift=\SynapseLength/2]first_syn);
+            
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$I$}},
+                    height=\PlotSynHeight,
+                    name=depressing exc output plot,
+                    at={($(depressing inhib output plot.north east) + (0,\PlotSep+\SynapsePlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-0.2}{2.2},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                    clip=false,
+                ]
+                \addplot[draw=outColor,  thick] table [col sep=comma, x=time, y=value]{data/depressing_output.csv} node[pos=0,left,zero text] {0};
+            \end{axis}
+
+            \coordinate (second_syn) at ([yshift=\PlotSep]depressing exc output plot.north-|facilitating_panel.center);
+            %\coordinate (second_syn) at ([yshift=\PlotSep]depressing exc output plot.north);
+            %\draw[very thick, depressed excitation arrow] ([xshift=-\SynapseLength/2]second_syn) node[left, text=black, font=\scriptsize] {$\eventsymb$} -- ([xshift=\SynapseLength/2]second_syn) node[right, text=outColor, font=\scriptsize] {$I$};
+            \draw[very thick, depressed excitation arrow, outColor] ([xshift=-\SynapseLength/2]second_syn) -- ([xshift=\SynapseLength/2]second_syn);
+        \end{scope}
+
+        % --- Mod Panel ---
+        \begin{scope}[
+                shift={(modulation_panel.center)}, 
+            ]
+            \node[panel letter] at (modulation_panel.north west) {C};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.35cm}
+            \pgfmathsetlengthmacro{\InternalSpacing}{0.3cm}
+            \pgfmathsetlengthmacro{\VecticalSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\XOffset}{0cm}
+            \pgfmathsetlengthmacro{\YOffsetNeuron}{0.33cm}
+            \pgfmathsetlengthmacro{\XOffsetNeuron}{0.14cm}
+
+            %[shift={(-\InternalSpacing/2 + \XOffset,-\TopSpacingPanel)}]
+
+            \node[anchor=west] (event_pos) at ([yshift=-\TopSpacingPanel-\SquareBlockSize/2]modulation_panel.north west) {$\eventsymb_+$} ;
+
+            %\pic[fill=white, anchor=north east] (tanh_mod_inc_block) at ([shift={(-\InternalSpacing - \AddBlockSize/2,-\TopSpacingPanel)}]modulation_panel.north) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=west] (tanh_mod_inc_block) at ([xshift=\InputOutputSpacing]event_pos.east) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=north, constant style={text=$\Bar{p}$}] (base_param) at ([yshift=-\VecticalSpacing]tanh_mod_inc_block.south) {constant block=\SquareBlockSize};
+            \pic[fill=white, anchor=north, tanh style=reversed] (tanh_mod_dec_block) at ([yshift=-\VecticalSpacing]base_param.south) {tanh block=\SquareBlockSize};
+
+            % add
+            \pic[fill=white, anchor=west, add style={sign big=plus}] (add_mod_block) at ([xshift=\InternalSpacing]base_param.east) {add block=\AddBlockSize};
+            \pic[fill=white, anchor=west] (lowpass_mod_block) at ([xshift=\InternalSpacing]add_mod_block.east) {lowpass block=\SquareBlockSize};
+
+            % connection
+            \draw[connection arrow] ([xshift=-\InputOutputSpacing]tanh_mod_inc_block.west) -- (tanh_mod_inc_block.west);
+            \draw[connection arrow] ([xshift=-\InputOutputSpacing]tanh_mod_dec_block.west) node[left] {$\eventsymb_-$} -- (tanh_mod_dec_block.west);
+            \draw[connection arrow] (lowpass_mod_block.east) -- ([xshift=\InputOutputSpacing]lowpass_mod_block.east) node[right] (param_out) {$p$};
+            \draw[connection arrow] (tanh_mod_inc_block.east) -| (add_mod_block.north);
+            \draw[connection arrow] (tanh_mod_dec_block.east) -| (add_mod_block.south);
+            \draw[connection arrow] (base_param.east) -- (add_mod_block.west);
+            \draw[connection arrow] (add_mod_block.east) -- (lowpass_mod_block.west);
+
+            \pgfplotsset{ 
+                width=\LeftRightPanelWidth-\TextSpacingMod-\BaseSpacing,
+                height=\PlotHeight,
+                xmin=0.0, xmax=10,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    scale only axis,
+                    height=\PlotEventHeight,
+                    ylabel={\textcolor{black}{$\eventsymb_-$}},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    name=modulation input neg plot,
+                    at={($(modulation_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0.0}{10},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[draw=black,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/modulation_input_neg_spike.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    height=\PlotEventHeight,
+                    ylabel={\textcolor{black}{$\eventsymb_+$}},
+                    name=modulation input pos plot,
+                    at={($(modulation input neg plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=black,  thick, ycomb] table [col sep=comma, x=time, y=value]{data/modulation_input_pos_spike.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{black}{$p$}},
+                    name=modulation output plot,
+                    at={($(modulation input pos plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-0.15}{0.382},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=black,  thick] table [col sep=comma, x=time, y=value]{data/modulation_output.csv};
+            \end{axis}
+
+            %\coordinate (mid) at ($(tanh_mod_dec_block.south)!0.5!(modulation output plot.north)$);
+
+            %\coordinate (mid) at ($(lowpass_mod_block.south)!0.5!(modulation output plot.north)$);
+            %\pic[draw=axisColor, fill=white, fill opacity=1.0, neuron style={draw style={draw=axisColor}, mod input port distance=0.4cm, mod output port distance=0.5cm, mod port angle=-110}] (big_neuron) at ([yshift=\YOffsetNeuron]lowpass_mod_block.center|-mid) {neuron block=\LeftRightPanelWidth*0.3};
+
+            \pic[anchor=west, draw=neuronColor, fill=white, fill opacity=1.0, neuron style={draw style={draw=neuronColor}, mod input port distance=0.4cm, mod output port distance=0.5cm, mod port angle=-110}] (big_neuron) at ([shift={(\XOffsetNeuron,\YOffsetNeuron)}]param_out.east) {neuron block=\SquareBlockSize*1.5};
+
+            
+            \begin{scope}[on background layer]
+                \draw[modulation arrow, very thick] ([yshift=-0.2cm]big_neuron-mod-start) node[below] {$\{ \textcolor{black}{\eventsymb_+}, \textcolor{black}{\eventsymb_-}\}$} -- (big_neuron-mod-start) node[text=black, right] {$p$} -- (big_neuron-mod-end);
+            \end{scope}
+            
+            \iffalse
+            \pgfmathsetlengthmacro{\outlength}{width("$e_+$")}
+            \pic[fill=white, anchor=west] (mod_neuron) at ([xshift=\RightSpacingPanel+\outlength+\XOffset]modulation_panel.center) {neuron block=\SquareBlockSize};
+            \begin{scope}[on background layer]
+                \draw[connection arrow, draw=ulgPurple] ([yshift=-\VecticalSpacing]mod_neuron-mod-start) node[below] {$e_{+}$} -- (mod_neuron-mod-start) node[right,font=\tiny] {$g_{s-}$} -- (mod_neuron-mod-end);
+            \end{scope}
+
+            \begin{axis}[
+                scale only axis,
+                ymin=-2.1, ymax=2.1,
+                ylabel={$e_+$},
+                xlabel={time},
+                name=modulation ex input plot,
+                at={($(modulation_panel.south east) + (-\RightSpacingPanel,\BotSpacingPanel)$)},
+                anchor=south east,
+            ]
+            \addplot[color=ulgBlue] {0.5*tanh(x)};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ymin=-2.1, ymax=2.1,
+                    ylabel={$V$},
+                    name=modulation ex output plot,
+                    at={($(modulation ex input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                ]
+                \addplot[color=ulgBlue] {0.5*tanh(x)};
+            \end{axis}
+            \fi
+        \end{scope}
+
+
+        % --- Example Panel ---
+        \begin{scope}[
+                shift={(example_panel.center)}, 
+                draw=axisColor, 
+                neuron style={draw style={draw=axisColor, very thin}, mod input port distance=0.3cm, mod output port distance=0.4cm},
+                add style={draw style={draw=axisColor}},
+                lowpass style={text style={font=\tiny}},
+                every pic/.style={text=axisColor},
+            ]
+            \node[panel letter] at (example_panel.north west) {D};
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.25cm}
+            \pgfmathsetlengthmacro{\InternalSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\NeuronSize}{\SquareBlockSize}
+            \pgfmathsetlengthmacro{\VecticalSpacing}{0.7cm}
+            \pgfmathsetlengthmacro{\HorizontalSpacing}{0.4cm}
+            \pgfmathsetlengthmacro{\XOffset}{0.00cm}
+
+            \pgfmathsetlengthmacro{\XShift}{0.3cm}
+            \pgfmathsetlengthmacro{\YShift}{0.8cm}
+            \pgfmathsetlengthmacro{\YBotShift}{0.1cm}
+
+            % blocks
+            \pic[fill=white, anchor=west, very thin] (first_neuron) at ([shift={(\XShift, -\YShift)}]example_panel.north west) {neuron block=\NeuronSize};
+
+            \pic[fill=white, anchor=west, very thin] (out_neuron) at ([shift={(\XShift, \YBotShift + \NeuronSize/2)}]example_panel.south west) {neuron block=\NeuronSize};
+
+            \coordinate (mid) at ($(first_neuron.south)!0.5!(out_neuron.north)$);
+            
+            \pic[fill=white, anchor=west, very thin] (second_neuron) at ([xshift=\HorizontalSpacing]mid-|first_neuron.east) {neuron block=\NeuronSize};
+
+            %\pic[fill=white, anchor=north] (mod_neuron) at ([shift={(-\InternalSpacing - \NeuronSize, -\VecticalSpacing)}]second_neuron.south) {neuron block=\NeuronSize};
+
+            % connections
+            %\draw[draw=Color1, thick, facilitated inhibition arrow] (second_neuron.110) .. controls ([shift={(110:0.3cm)}]second_neuron.110) and ([shift={(0:0.3cm)}]first_neuron.0) .. (first_neuron.0);
+            \draw[draw=Color2, thick, facilitated excitation arrow] (first_neuron.0-|second_neuron.center) node[right, text=Color1] {$\eventsymb$} -- (first_neuron.0);
+
+            %\draw[draw=Color2, thick, depressed excitation arrow] (first_neuron.-60) .. controls ([shift={(-60:0.3cm)}]first_neuron.-60) and ([shift={(160:0.3cm)}]second_neuron.160) .. (second_neuron.160);
+
+            %\draw[draw=ulgBlueLight, facilitated excitation arrow] (second_neuron.-170) .. controls ([shift={(-170:0.5cm)}]second_neuron.-170) and ([shift={(80:0.5cm)}]mod_neuron.80) .. (mod_neuron.80);
+
+            \draw[draw=Color3, thick, depressed inhibition arrow] (first_neuron.-90) -- (out_neuron.90);
+
+            \begin{scope}[on background layer]
+                \draw[draw=Color4, thick, modulation arrow] (out_neuron.0) node[below right, font=\footnotesize, inner sep=1pt] {$-$} .. controls ([shift={(0:0.3cm)}]out_neuron.0) and ([shift={(-110:0.2cm)}]second_neuron-mod-start) .. (second_neuron-mod-start) node[text= black, right, text=Color4] {$g$} -- (second_neuron-mod-end);
+            \end{scope}
+
+            \coordinate (left_vec) at (second_neuron.east|-example_panel.east);
+            \coordinate (right_vec) at (example_panel.east);
+
+            \iffalse
+            \tikzmath{coordinate \Coord;
+                %Storing coordinates difference
+                \Coord = (right_vec)-(left_vec); 
+                \tmpvecrightlength=\Coordx; 
+            }
+            \pgfmathsetlengthmacro{\vecrightlength}{\tmpvecrightlength}
+            \fi
+
+            \pgfmathsetlengthmacro{\vecrightlength}{\LeftRightPanelWidth - 2*\NeuronSize-\HorizontalSpacing-\XShift}
+
+
+            %\draw let \p1=($(left_vec)-(example_panel.east)$), \n1={veclen(\y1,\x1)} in (left_vec) -- ([xshift=\n1]left_vec);
+            \pgfplotsset{ 
+                width=\vecrightlength-\TextSpacingExample-\BaseSpacing,
+                height=\PlotExampleHeight,
+                xmin=0., xmax=1.6,
+                axis line style={axisColor},
+                tick style={axisColor},
+            }
+
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{Color1}{$\eventsymb$}},
+                    xlabel={\textcolor{textGreyColor}{$t$}},
+                    name=voltage 1 plot,
+                    at={($(example_panel.south east) + (0,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1.0},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0}{1.6},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[draw=Color1,  thick, ycomb] table [col sep=comma, x=time, y=value,]{data/example_synapse4_spike.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{Color2}{$I$}},
+                    name=voltage 2 plot,
+                    at={($(voltage 1 plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-0.02}{0.22},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=Color2,  thick] table [col sep=comma, x=time, y=value]{data/example_synapse3.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{Color3}{$I$}},
+                    name=voltage 3 plot,
+                    at={($(voltage 2 plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={-2.2}{0.2},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=Color3,  thick] table [col sep=comma, x=time, y=value]{data/example_synapse2.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={\textcolor{Color4}{$g$}},
+                    name=voltage 4 plot,
+                    at={($(voltage 3 plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={2.1}{2.25},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[draw=Color4,  thick] table [col sep=comma, x=time, y=value]{data/example_synapse1.csv};
+            \end{axis}
+        \end{scope}
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

@@ -1,0 +1,368 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+
+\input{../pgfplots_style_setup.tex}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\begin{document}
+    
+\begin{tikzpicture}[
+        title style/.style = {
+                font=\bfseries, 
+                fill=ulgGrey!25, 
+                text width=3.5cm, 
+                align=center
+            },
+    ]
+    \colorlet{colorLineError}{natureSkyBlue}
+    \colorlet{colorLAreaError}{natureSkyBlue!25}
+    \colorlet{colorDotError}{natureSkyBlue}
+    \colorlet{colorLineParam}{natureBluishGreen}
+    \colorlet{colorLAreaParam}{natureBluishGreen!25}
+    \colorlet{colorDotParam}{natureBluishGreen}
+    \colorlet{axisColor}{black!20}
+    \colorlet{plotGreyColor}{black!60}
+    \colorlet{textGreyColor}{black!60}
+    \newcommand{\probplot}[5]{%
+    % Line plot
+    \addplot [color=#3,name path=mean,forget plot,thin] 
+    table [col sep=comma, x=prob, y=median] 
+    {#1};
+    % Area plot
+    \addplot [draw=none,name path=top,forget plot]
+    table [col sep=comma, x=prob,y=perc25]
+        {#1};
+    \addplot [draw=none,name path=bot,forget plot]
+    table [col sep=comma, x=prob,y=perc75]
+        {#1};
+    \addplot[color=#4,forget plot] fill between[of=top and bot];
+    % Points plot
+    \addplot[only marks, mark=-, very thin,color=#5,mark size=0.4pt,forget plot,on layer=axis foreground] table [col sep=comma, x=prob, y=val] {#2};
+    %\addplot[only marks,color=#5,mark size=0.2pt,forget plot,on layer=axis foreground,thin] table [col sep=comma, x=prob, y=val] {#2};
+    }
+
+    \pgfmathsetlengthmacro{\plotheight}{1.25cm}
+    \pgfmathsetlengthmacro{\plotwidthleft}{4cm}
+    \pgfmathsetlengthmacro{\plotwidthright}{6cm}
+    \pgfmathsetlengthmacro{\plotXsep}{1.15cm}
+    \pgfmathsetlengthmacro{\plotYsep}{0.15cm}
+    \pgfmathsetlengthmacro{\anglePlotShorten}{0.5cm}
+    \pgfmathsetlengthmacro{\rectXoff}{0.07cm}
+    \pgfmathsetlengthmacro{\rectYoff}{0.2cm}
+    \pgfmathsetlengthmacro{\labelXoff}{0.2cm}
+    \pgfmathsetlengthmacro{\labelYoff}{0.2cm}
+    \pgfmathsetlengthmacro{\titleYoff}{0.1cm}
+
+    \pgfmathsetlengthmacro{\circleradius}{2cm}
+    %\def{\circlecenter}{(\plotwidthleft+\circleradius, -2*\plotheight-1.5*\plotYsep)}
+
+    
+    \pgfplotsset{
+        every axis/.append style={scale only axis},
+        detached axis=0.35cm,
+        axis line style={axisColor},
+        tick style={axisColor},
+        tick label style={text=textGreyColor},
+    }
+
+    \pgfplotsset{
+        xmin=0.1,xmax=3.1,
+    }
+
+    \begin{axis}[
+            width=\plotwidthleft,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={0.01}{3.2},
+            two ticks y axis labels={\num{1e-2}}{\num{3.2e0}},
+            legend columns=2,
+            legend cell align=left,
+            legend style={draw=none,fill=none,font=\scriptsize,row sep=-0.12cm,/tikz/every even column/.append style={column sep=-0.1cm},
+            at={(0.0,1)}, anchor=north west,yshift=0.1cm,inner xsep=0pt, inner ysep=0pt},
+            %legend pos=north west,
+            name=amp mes plot,
+        ]
+        \probplot{data/ref_angle_amp_error_avg.csv}{data/ref_angle_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+        
+        \addlegendimage{custom line mark legend={draw=colorDotError,thin}};
+        \addlegendentry{}
+        \addlegendimage{custom line mark legend={draw=colorDotParam,thin}};
+        \addlegendentry{Individual sim}
+    
+        \addlegendimage{custom line legend={draw=colorLineError,very thick}}
+        \addlegendentry{}
+        \addlegendimage{custom line legend={draw=colorLineParam,very thick}}
+        \addlegendentry{Median value}
+    
+        \addlegendimage{custom area legend={fill=colorLAreaError,draw=none}}
+        \addlegendentry{}
+        \addlegendimage{custom area legend={fill=colorLAreaParam,draw=none}}
+        \addlegendentry{1\textsuperscript{st}-3\textsuperscript{rd} quartiles}
+
+        %\coordinate (top 05 rect) at (0.05,0.05);
+        %\path [name intersections={of=mean and line-05,by=top 05 rect}];
+        %\path [name intersections={of=mean and line-35,by=top 35 rect}];
+        %\path [name intersections={of=mean and line-65,by=top 65 rect}];
+        \coordinate (A_label) at (yticklabel* cs:1);
+        
+    \end{axis}
+    \coordinate (A_title) at (amp mes plot.north);
+    \begin{axis}[
+            width=\plotwidthleft,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={0.005}{0.5},
+            two ticks y axis labels={\num{5e-3}}{\num{5e-1}},
+            at={($(amp mes plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=slip mes plot,
+        ]
+        \probplot{data/ref_angle_freq_error_avg.csv}{data/ref_angle_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidthleft,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={-4.5}{-1},
+            at={($(slip mes plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=gsyn mes plot,
+        ]
+        \probplot{data/ref_angle_gsyn_avg.csv}{data/ref_angle_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={1.5}{5},
+            xlabel = $\Bar{\theta}$,
+            %x unit = -,
+            two ticks x axis={0.1}{3.1},
+            at={($(gsyn mes plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=gsm mes plot,
+            width=\plotwidthleft,
+            height=\plotheight,
+        ]
+        \probplot{data/ref_angle_gsm_avg.csv}{data/ref_angle_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+    \pgfplotsset{
+        xmin=0.4,xmax=3.8,
+    }
+
+    \begin{axis}[
+            width=\plotwidthleft,
+            height=\plotheight,
+            ylabel = {$e_\text{amp}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={0.01}{3.2},
+            two ticks y axis labels={\num{1e-1}}{\num{3.2e0}},
+            middle y axis style,
+            legend columns=2,
+            legend cell align=left,
+            legend style={draw=none,fill=none,font=\scriptsize,row sep=-0.12cm,/tikz/every even column/.append style={column sep=-0.1cm},
+            at={(0.0,1)}, anchor=north west,yshift=0.1cm,inner xsep=0pt, inner ysep=0pt},
+            at={($(amp mes plot.north east) + (\plotXsep,0)$)},
+            anchor=north west,
+            %legend pos=north west,
+            name=amp mes plot,
+        ]
+        \probplot{data/mod_gains_amp_error_avg.csv}{data/mod_gains_amp_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+
+        \coordinate (B_label) at (yticklabel* cs:1);
+    \end{axis}
+    \coordinate (B_title) at (amp mes plot.north);
+    \begin{axis}[
+            width=\plotwidthleft,
+            height=\plotheight,
+            ylabel = {$e_\text{sync}$},
+            %y unit = \unit{\radian},
+            hide x axis,
+            ymode=log,
+            two ticks y axis={0.005}{0.5},
+            two ticks y axis labels={\num{5e-3}}{\num{5e-1}},
+            middle y axis style,
+            at={($(amp mes plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=slip mes plot,
+        ]
+        \probplot{data/mod_gains_freq_error_avg.csv}{data/mod_gains_freq_error_pts.csv}{colorLineError}{colorLAreaError}{colorDotError}
+    \end{axis}
+    \begin{axis}[
+            width=\plotwidthleft,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            hide x axis,
+            two ticks y axis={-4.5}{-1},
+            middle y axis style,
+            at={($(slip mes plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=gsyn mes plot,
+        ]
+        \probplot{data/mod_gains_gsyn_avg.csv}{data/mod_gains_gsyn_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+    \begin{axis}[
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            two ticks y axis={1.5}{5},
+            middle y axis style,
+            xlabel = $g_\text{mod}$,
+            %x unit = -,
+            two ticks x axis={0.4}{3.8},
+            at={($(gsyn mes plot.south west) + (0,-\plotYsep)$)},
+            anchor=north west,
+            name=gsm mes plot,
+            width=\plotwidthleft,
+            height=\plotheight,
+        ]
+        \probplot{data/mod_gains_gsm_avg.csv}{data/mod_gains_gsm_pts.csv}{colorLineParam}{colorLAreaParam}{colorDotParam}
+    \end{axis}
+
+    \iffalse
+    \begin{scope}[font=\scriptsize]
+        %\filldraw[ulgGreen,fill opacity=0.25,draw opacity=0.35] ([shift={(-\rectXoff,-\rectYoff)}]bot 05 rect) rectangle ([shift={(\rectXoff,\rectYoff)}]top 05 rect);
+        %\filldraw[ulgYellowOrange,fill opacity=0.25,draw opacity=0.35] ([shift={(-\rectXoff,-\rectYoff)}]bot 35 rect) rectangle ([shift={(\rectXoff,\rectYoff)}]top 35 rect);
+        %\filldraw[ulgRed,fill opacity=0.25,draw opacity=0.35] ([shift={(-\rectXoff,-\rectYoff)}]bot 65 rect) rectangle ([shift={(\rectXoff,\rectYoff)}]top 65 rect);
+
+        \node[ulgGreen,right=-0.05cm] at (bot 05 rect|-amp mes plot.south) {$\mathit{P} \text{=} 0.05$};
+        \node[ulgYellowOrange,right=-0.05cm] at (bot 35 rect|-amp mes plot.south) {$\mathit{P} \text{=} 0.35$};
+        \node[ulgRed,right=-0.05cm] at (bot 65 rect|-amp mes plot.south) {$\mathit{P} \text{=} 0.65$};
+    \end{scope}
+    \fi
+    
+    \pgfplotsset{
+        xmin=0, xmax=20,
+    }
+
+    \iffalse
+    \begin{axis}[
+            name = loss prob angle,
+            at={($(slip mes plot.south east) + (\plotXsep,0)$)},
+            width=\plotwidthright,
+            height=2*\plotheight+\plotYsep-\anglePlotShorten,
+            ylabel = {$\theta$},
+            %y unit = \unit{\radian},
+            %two ticks y axis={-2}{2},
+            two ticks y axis enlarge lims={-2.07}{2.07}{-2}{2},
+            hide x axis,
+            %enlarge y limits={abs=\anglePlotShorten/2},
+            %y axis line style={shorten >=\anglePlotShorten-0.5*\pgflinewidth, shorten <=\anglePlotShorten/2-0.5*\pgflinewidth},
+            legend columns=3,
+            legend cell align=left,
+            legend style={
+                draw=none, fill=none, font=\normalfont,
+                /tikz/every even column/.append style={column sep=0.1cm}, 
+                at={(0.5,1)}, anchor=south
+            },
+        ]
+        \addplot [color=ulgGreen,draw opacity=0.4,forget plot] table [col sep=comma, x=time, y=angle] {data/event_loss_05_angle.csv};
+        \addplot [color=ulgYellowOrange,draw opacity=0.4,forget plot] table [col sep=comma, x=time, y=angle] {data/event_loss_35_angle.csv};
+        \addplot [color=ulgRed,draw opacity=0.8,forget plot] table [col sep=comma, x=time, y=angle] {data/event_loss_65_angle.csv};
+        \addplot[only marks,color=ulgGreen,mark size=0.7pt,forget plot] table [col sep=comma, x=time, y=angle] {data/event_loss_05_angle_peak.csv};
+        \addplot[only marks,color=ulgYellowOrange,mark size=0.7pt,forget plot] table [col sep=comma, x=time, y=angle] {data/event_loss_35_angle_peak.csv};
+        \addplot[only marks,color=ulgRed,mark size=0.7pt,forget plot] table [col sep=comma, x=time, y=angle] {data/event_loss_65_angle_peak.csv};
+        \addplot[color=ulgGrey, dashed,forget plot] coordinates 
+        {(0, -2) (20, -2)
+        
+        (0, 2) (20, 2)};
+        \coordinate (B_label) at (yticklabel cs:1);
+
+        \addlegendimage{custom line legend={draw=ulgGreen,very thick}}
+        \addlegendentry{$\mathit{P} = 0.05$}
+        \addlegendimage{custom line legend={draw=ulgYellowOrange,very thick}}
+        \addlegendentry{$\mathit{P} = 0.35$}
+        \addlegendimage{custom line legend={draw=ulgRed,very thick}}
+        \addlegendentry{$\mathit{P} = 0.65$}
+        \coordinate (B_label) at (yticklabel* cs:1);
+    \end{axis}
+
+
+    \begin{axis}[
+            name = loss prob gsyn,
+            at={($(gsyn mes plot.south east) + (\plotXsep,0)$)},
+            width=\plotwidthright,
+            height=\plotheight,
+            ylabel = {$g_\text{syn}$},
+            %y unit = -,
+            two ticks y axis={-2.5}{-1.5},
+            hide x axis,
+        ]
+        \addplot [color=ulgGreen,draw opacity=0.8] table [col sep=comma, x=time, y=gsyn] {data/event_loss_05_gsyn_pos.csv};
+        \addplot [color=ulgGreen,draw opacity=0.8,densely dashed] table [col sep=comma, x=time, y=gsyn] {data/event_loss_05_gsyn_neg.csv};
+        %
+        \addplot [color=ulgYellowOrange,draw opacity=0.8] table [col sep=comma, x=time, y=gsyn] {data/event_loss_35_gsyn_pos.csv};
+        \addplot [color=ulgYellowOrange,draw opacity=0.8,densely dashed] table [col sep=comma, x=time, y=gsyn] {data/event_loss_35_gsyn_neg.csv};
+        %
+        \addplot [color=ulgRed,draw opacity=0.8] table [col sep=comma, x=time, y=gsyn] {data/event_loss_65_gsyn_pos.csv};
+        \addplot [color=ulgRed,draw opacity=0.8,densely dashed] table [col sep=comma, x=time, y=gsyn] {data/event_loss_65_gsyn_neg.csv};
+    \end{axis}
+
+
+    \begin{axis}[
+            name = loss prob gsm,
+            at={($(gsm mes plot.south east) + (\plotXsep,0)$)},
+            width=\plotwidthright,
+            height=\plotheight,
+            ylabel = {$g_\text{s-}$},
+            %y unit = -,
+            xlabel = {Time},
+            x unit = \unit{\second},
+            two ticks y axis={-4}{-2.5},
+            %two ticks x axis={0}{20},
+            %no ticks x axis,
+            unit x axis={0}{20}{3}{\unit{\second}},
+            %xmin=0, xmax=20,
+        ]
+        \addplot [color=ulgGreen,draw opacity=0.8] table [col sep=comma, x=time, y=gsm] {data/event_loss_05_gsm_pos.csv};
+        \addplot [color=ulgGreen,draw opacity=0.8,densely dashed] table [col sep=comma, x=time, y=gsm] {data/event_loss_05_gsm_neg.csv};
+        %
+        \addplot [color=ulgYellowOrange,draw opacity=0.8] table [col sep=comma, x=time, y=gsm] {data/event_loss_35_gsm_pos.csv};
+        \addplot [color=ulgYellowOrange,draw opacity=0.8,densely dashed] table [col sep=comma, x=time, y=gsm] {data/event_loss_35_gsm_neg.csv};
+        %
+        \addplot [color=ulgRed,draw opacity=0.8] table [col sep=comma, x=time, y=gsm] {data/event_loss_65_gsm_pos.csv};
+        \addplot [color=ulgRed,draw opacity=0.8,densely dashed] table [col sep=comma, x=time, y=gsm] {data/event_loss_65_gsm_neg.csv};
+    \end{axis}
+
+    \fi
+    
+    \node[font=\LARGE\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (A_label) {A};
+    \node[font=\LARGE\bfseries, shift={(\labelXoff,\labelYoff)}, anchor=south east, text=textGreyColor] at (B_label) {B};
+    %\node[font=\LARGE\bfseries, above left] at (A_label-|B_label) {B};
+    
+    \node[title style, yshift=\titleYoff, anchor=south] at (A_title) {Reference Angle};
+    \node[title style, yshift=\titleYoff, anchor=south] at (B_title) {Modulation Strength};
+
+    %\draw [dashed] (7cm,-1.775cm) circle [radius=2cm];
+    %\draw [very thick,ulgPink] (9cm,-1.775cm) arc [radius=2cm,start angle=0,end angle=-84];
+    %\draw [very thick,ulgPink] (9cm,-1.775cm) arc [radius=2cm,start angle=0,end angle=59];
+    %\draw [very thick,ulgPink] (5cm,-1.775cm) arc [radius=2cm,start angle=-180,end angle=-96];
+    %\draw [very thick,ulgPink] (5cm,-1.775cm) arc [radius=2cm,start angle=-180,end angle=-239];
+
+    \coordinate (top_left_bb) at (current bounding box.north west);
+    \coordinate (bot_left_bb) at (current bounding box.south west);
+    \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+    \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+    %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+\end{tikzpicture}
+
+\end{document}

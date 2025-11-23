@@ -1,0 +1,520 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=newest}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit, math}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+
+\input{../tikzdefinitions.tex}
+\input{../pgfplots_style_setup.tex}
+\pgfplotsset{ 
+    every axis/.append style={scale only axis},
+    %clip=false,
+    every axis plot/.style={
+        no markers,
+        miter limit=2,
+    },
+}
+
+\pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+\begin{document}
+    \colorlet{inColor}{natureSkyBlue}
+    \colorlet{in2Color}{natureBluishGreen}
+    \colorlet{outColor}{natureOrange}
+    \colorlet{out2Color}{natureVermilion} 
+    \colorlet{axisColor}{black!20}
+    \colorlet{plotGreyColor}{black!60}
+    \colorlet{textGreyColor}{black!60}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            font = \normalsize,
+            panel node/.style={line width=\PanelLineWidth, rounded corners=2mm, inner sep=0pt},
+            panel letter/.style={font=\bfseries\Large, text=textGreyColor, inner sep=0.0cm, anchor=north west},
+            panel show style/.style={},
+            panel show/.is choice,
+            panel show/on/.style={panel show style/.append style={draw=black}},
+            panel show/off/.style={panel show style/.append style={draw=none}},
+            panel show=off,
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+        ]
+        \pgfmathsetlengthmacro{\PanelXSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\PanelYSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\PageWidth}{372pt}
+        \pgfmathsetlengthmacro{\FigureWidth}{\PageWidth*0.77}
+        \pgfmathsetlengthmacro{\FigureHeight}{\PageWidth*0.45}
+
+        \pgfmathsetlengthmacro{\FullPanelWidth}{\FigureWidth - 2*\PanelLineWidth - \PanelXSpacing}
+        \pgfmathsetlengthmacro{\MismatchPanelWidth}{\FullPanelWidth*0.5}
+        \pgfmathsetlengthmacro{\LossPanelWidth}{\FullPanelWidth - \MismatchPanelWidth}
+
+        \pgfmathsetlengthmacro{\FullPanelHeight}{\FigureHeight - \PanelLineWidth}
+
+
+        % Inside Panel Spacing
+        \pgfmathsetlengthmacro{\TopSpacingPanel}{0.7cm}
+        \pgfmathsetlengthmacro{\TopSpacingPanelMod}{0.2cm + \TopSpacingPanel}
+        \pgfmathsetlengthmacro{\BotSpacingPanel}{0.6cm}
+        \pgfmathsetlengthmacro{\RightSpacingPanel}{0.35cm}
+        \pgfmathsetlengthmacro{\LabelSpacing}{0.45cm + \RightSpacingPanel}
+        \pgfmathsetlengthmacro{\NodeSpacing}{0.5*0.6666em}
+        \pgfmathsetlengthmacro{\BaseSpacing}{0.25cm+\NodeSpacing}
+        \pgfmathsetlengthmacro{\PlotHeight}{0.6cm}
+        \pgfmathsetlengthmacro{\PlotHeightIndividual}{\PlotHeight/3}
+        \pgfmathsetlengthmacro{\PlotSep}{0.2cm}
+        \pgfmathsetlengthmacro{\PlotEventHeight}{0.4cm}
+        \pgfmathsetlengthmacro{\SquareBlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\NeuronBlockSize}{0.9cm}
+        \pgfmathsetlengthmacro{\DispBlockSize}{\SquareBlockSize*1.5}
+        \pgfmathsetlengthmacro{\AddBlockSize}{0.3cm}
+
+        \pgfmathsetlengthmacro{\TextSpacingBistable}{max(width("\noexpand\large $\delta_1$"), width("\noexpand\large $\delta_2$"), width("\noexpand\large $\delta_3$"))}
+
+        
+        \pgfmathsetlengthmacro{\TextSpacingExampleMismatch}{max(width("BL"), width("Mis"))}
+        \pgfmathsetlengthmacro{\TextSpacingExampleEvent}{max(width("BL"), width("Loss"))}
+        \pgfmathsetlengthmacro{\TextSpacingExample}{max(\TextSpacingExampleMismatch, \TextSpacingExampleEvent)}
+        \pgfmathsetlengthmacro{\TextSpacingMetrics}{max(width("Spike Height"), width("Burst Period"), width("Spike/Burst"))}
+
+        \iffalse
+        \pgfmathsetlengthmacro{\DiagramSpacing}{2.3cm}
+        \pgfmathsetlengthmacro{\SymbolSpacing}{0.8cm}
+        \pgfmathsetlengthmacro{\PlotXSpacing}{0.83cm}
+        \pgfmathsetlengthmacro{\BlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\NeuronSize}{0.9cm}
+        \pgfmathsetlengthmacro{\DispBlockSize}{1.1cm}
+        \pgfmathsetlengthmacro{\DispNeuronSize}{1.2cm}
+        \pgfmathsetlengthmacro{\CircleSize}{0.5cm}
+        \pgfmathsetlengthmacro{\PlotWidth}{(0.44)*372pt}
+        \pgfmathsetlengthmacro{\PlotHeight}{0.5*\PlotWidth+0.15cm}
+        \pgfmathsetlengthmacro{\LabelHeight}{\DiagramSpacing+0.8cm}
+
+        \pgfmathsetmacro{\NeuronPlotRatio}{0.65}
+        \pgfmathsetlengthmacro{\NeuronPlotHeight}{\PlotHeight*\NeuronPlotRatio}
+        \pgfmathsetlengthmacro{\InputPlotHeight}{\PlotHeight*(1-\NeuronPlotRatio)}
+        \fi
+
+        % Panel Layout
+        \begin{scope}[on background layer]
+            \node[panel node, anchor=north west, panel show style, minimum width=\MismatchPanelWidth, minimum height=\FullPanelHeight] (mismatch_panel) at (0,0) {};
+            \node[panel node, anchor=north west, panel show style, minimum width=\LossPanelWidth, minimum height=\FullPanelHeight] (loss_panel) at ([xshift=\PanelXSpacing]mismatch_panel.north east) {};
+        \end{scope}
+
+
+        \begin{scope}[
+                shift={(mismatch_panel.center)}, 
+                neuron style={draw style={}, mod input port distance=0.3cm, mod output port distance=0.4cm},
+                name prefix=mismatch_panel,
+            ]
+            \node[panel letter] at (.north west) {A};
+
+            %\node[anchor=north] at (.north) {$\sigma = 0.05$};
+            \node[anchor=north] at (.north) {Max mismatch $= \pm 12\%$};
+
+            \begin{scope}
+                \pgfplotsset{ 
+                    detached axis,
+                    width=\MismatchPanelWidth-\TextSpacingExample-\BaseSpacing,
+                    xmin=0, xmax=5,
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                    ylabel style={font=\small},
+                }
+
+                \begin{axis}[
+                        ylabel={BL},
+                        height=\PlotHeight,
+                        name=BL neuron plot 1,
+                        at={($(.north east) + (-\PanelLineWidth/2,-\TopSpacingPanel)$)},
+                        anchor=north east,
+                        two ticks y axis={0}{3},
+                        two ticks y axis labels={}{},
+                        hide x axis,
+                    ]
+                    \addplot[draw=outColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron3_a015.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=BL neuron plot 2,
+                        at={($(BL neuron plot 1.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=in2Color, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron2_a015.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=BL neuron plot 3,
+                        at={($(BL neuron plot 2.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=inColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron1_a015.csv};
+                \end{axis}
+
+
+                \begin{axis}[
+                        ylabel={Mis},
+                        xlabel={\textcolor{textGreyColor}{$t$}},
+                        height=\PlotHeight,
+                        name=miss neuron plot 1,
+                        at={($(BL neuron plot 1.south east) + (0,-\PlotSep)$)},
+                        anchor=north east,
+                        two ticks y axis={0}{3},
+                        two ticks y axis labels={}{},
+                        two ticks x axis={0}{5},
+                        two ticks x axis labels={}{},
+                    ]
+                    \addplot[draw=outColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron3_mismatch.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=miss neuron plot 2,
+                        at={($(miss neuron plot 1.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=in2Color, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron2_mismatch.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=miss neuron plot 3,
+                        at={($(miss neuron plot 2.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=inColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron1_mismatch.csv};
+                \end{axis}
+                
+            \end{scope}
+
+            \begin{scope}
+                \pgfplotsset{ 
+                    detached x axis=0.05cm,
+                    width=\MismatchPanelWidth-\TextSpacingMetrics-\NodeSpacing,
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                    ylabel style={font=\small},
+                }
+
+                \begin{axis}[
+                        ylabel={Spike/Burst},
+                        height=\PlotEventHeight,
+                        name=third neuron plot 1,
+                        at={($(.south east) + (-\PanelLineWidth/2,\BotSpacingPanel)$)},
+                        anchor=south east,
+                        ymin=0, 
+                        two ticks x axis={0}{40},
+                        clip=false
+                    ]
+                    \addplot[draw=none, fill=plotGreyColor, hist={bins=40,density}] table [col sep=comma, y=nbspikes]{data/stg_mismatch_nbspike.csv};
+
+                    \coordinate (tmp) at (axis cs:11.24, 0.1);
+                    \coordinate (tmp2) at (xticklabel* cs:0.5);
+                    \coordinate (tmp3) at (tmp|-tmp2);
+                    \draw[draw=none, natureVermilion, thick, inner sep=1pt] (tmp3) -- ++(0cm,-0.1cm) node[below, text=natureVermilion] {\tiny BL}; 
+                \end{axis}
+
+                \begin{axis}[
+                        ylabel={Burst Freq},
+                        height=\PlotEventHeight,
+                        name=second neuron plot 1,
+                        at={($(third neuron plot 1.north east) + (0,\PlotSep+\BaseSpacing)$)},
+                        anchor=south east,
+                        ymin=0,
+                        two ticks x axis={0}{4},
+                        clip=false
+                    ]
+                    \addplot[draw=none, fill=plotGreyColor, hist={bins=40,density}] table [col sep=comma, y=freq]{data/stg_mismatch_burstfreq.csv};
+
+                    \coordinate (tmp) at (axis cs:2.59, 0.1);
+                    \coordinate (tmp2) at (xticklabel* cs:0.5);
+                    \coordinate (tmp3) at (tmp|-tmp2);
+                    \draw[draw=none, natureVermilion, thick, inner sep=1pt] (tmp3) -- ++(0cm,-0.1cm) node[below, text=natureVermilion] {\tiny BL}; 
+                \end{axis}
+
+                \begin{axis}[
+                        ylabel={Spike Height},
+                        height=\PlotEventHeight,
+                        name=first neuron plot 1,
+                        at={($(second neuron plot 1.north east) + (0,\PlotSep+\BaseSpacing)$)},
+                        anchor=south east,
+                        ymin=0, 
+                        two ticks x axis={2}{6},
+                        clip=false
+                    ]
+                    \addplot[draw=none, fill=plotGreyColor, hist={bins=40,density}] table [col sep=comma, y=height]{data/stg_mismatch_spikeheight.csv};
+
+                    \coordinate (tmp) at (axis cs:4.10, 0.1);
+                    \coordinate (tmp2) at (xticklabel* cs:0.5);
+                    \coordinate (tmp3) at (tmp|-tmp2);
+                    \draw[draw=none, natureVermilion, thick, inner sep=1pt] (tmp3) -- ++(0cm,-0.1cm) node[below, text=natureVermilion] {\tiny BL}; 
+                \end{axis}
+            \end{scope}
+            
+
+            \begin{scope}
+                \pgfplotsset{ 
+                    axis lines=none,
+                    width=\LossPanelWidth-\TextSpacingMetrics-\NodeSpacing,
+                    height=0.1cm,
+                }
+                \begin{axis}[
+                        at={($(first neuron plot 1.south west) + (0,-0.05cm)$)},
+                        anchor=north west,
+                        y dir=reverse,
+                        ymin=0, xmin=2, xmax=6,
+                        clip=false,
+                    ]
+                    \addplot[draw=none, fill=natureVermilion, hist={bins=40,density}] table [col sep=comma, y=height]{data/stg_baseline_spikeheight.csv};
+                \end{axis}
+                \begin{axis}[
+                        at={($(second neuron plot 1.south west) + (0,-0.05cm)$)},
+                        anchor=north west,
+                        y dir=reverse,
+                        ymin=0, xmin=0, xmax=4,
+                        clip=false,
+                    ]
+                    \addplot[draw=none, fill=natureVermilion, hist={bins=40,density}] table [col sep=comma, y=freq]{data/stg_baseline_burstfreq.csv};
+                \end{axis}
+                \begin{axis}[
+                        at={($(third neuron plot 1.south west) + (0,-0.05cm)$)},
+                        anchor=north west,
+                        y dir=reverse,
+                        ymin=0, xmin=0, xmax=40,
+                        clip=false,
+                    ]
+                    \addplot[draw=none, fill=natureVermilion, hist={bins=40,density}] table [col sep=comma, y=nbspikes]{data/stg_baseline_nbspike.csv};
+                \end{axis}
+            \end{scope}
+        \end{scope}
+
+        \begin{scope}[
+                shift={(loss_panel.center)}, 
+                name prefix=loss_panel,
+            ]
+            \node[panel letter] at (.north west) {B};
+
+            \node[anchor=north] at (.north) {$P(\eventsymb = \text{lost}) = 0.2$};
+            %\node[panel letter] at (plot_panel.north west) {B};
+
+            \begin{scope}
+                \pgfplotsset{ 
+                    detached axis,
+                    width=\LossPanelWidth-\TextSpacingExample-\BaseSpacing,
+                    xmin=0, xmax=5,
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                    ylabel style={font=\small},
+                }
+
+                \begin{axis}[
+                        ylabel={BL},
+                        height=\PlotHeight,
+                        name=BL neuron plot 1,
+                        at={($(.north east) + (-\PanelLineWidth/2,-\TopSpacingPanel)$)},
+                        anchor=north east,
+                        two ticks y axis={0}{3},
+                        two ticks y axis labels={}{},
+                        hide x axis,
+                    ]
+                    \addplot[draw=outColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron3_a015.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=BL neuron plot 2,
+                        at={($(BL neuron plot 1.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=in2Color, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron2_a015.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=BL neuron plot 3,
+                        at={($(BL neuron plot 2.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=inColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron1_a015.csv};
+                \end{axis}
+
+
+                \begin{axis}[
+                        ylabel={Loss},
+                        xlabel={\textcolor{textGreyColor}{$t$}},
+                        height=\PlotHeight,
+                        name=loss neuron plot 1,
+                        at={($(BL neuron plot 1.south east) + (0,-\PlotSep)$)},
+                        anchor=north east,
+                        two ticks y axis={0}{3},
+                        two ticks y axis labels={}{},
+                        two ticks x axis={0}{5},
+                        two ticks x axis labels={}{},
+                    ]
+                    \addplot[draw=outColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron3_event_loss.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=loss neuron plot 2,
+                        at={($(loss neuron plot 1.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=in2Color, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron2_event_loss.csv};
+                \end{axis}
+                
+                \begin{axis}[
+                        height=\PlotHeightIndividual,
+                        name=loss neuron plot 3,
+                        at={($(loss neuron plot 2.south east) + (0,\PlotHeightIndividual)$)},
+                        anchor=south east,
+                        ymin = 0, ymax = 1.0,
+                        hide y axis,
+                        hide x axis,
+                    ]
+                    \addplot[draw=inColor, very thin, ycomb] table [col sep=comma, x=time, y=value]{data/STG_neuron1_event_loss.csv};
+                \end{axis}
+            \end{scope}
+
+            \begin{scope}
+                \pgfplotsset{ 
+                    detached x axis=0.05cm,
+                    width=\LossPanelWidth-\TextSpacingMetrics-\NodeSpacing,
+                    axis line style={axisColor},
+                    tick style={axisColor},
+                    ylabel style={font=\small},
+                }
+
+                \begin{axis}[
+                        ylabel={Spike/Burst},
+                        height=\PlotEventHeight,
+                        name=third neuron plot 1,
+                        at={($(.south east) + (-\PanelLineWidth/2,\BotSpacingPanel)$)},
+                        anchor=south east,
+                        ymin=0, 
+                        two ticks x axis={0}{40},
+                        clip=false
+                    ]
+                    \addplot[draw=none, fill=plotGreyColor, hist={bins=40,density}] table [col sep=comma, y=nbspikes]{data/stg_loss_nbspike.csv};
+
+                    \coordinate (tmp) at (axis cs:11.24, 0.1);
+                    \coordinate (tmp2) at (xticklabel* cs:0.5);
+                    \coordinate (tmp3) at (tmp|-tmp2);
+                    \draw[draw=none, natureVermilion, thick, inner sep=1pt] (tmp3) -- ++(0cm,-0.1cm) node[below, text=natureVermilion] {\tiny BL}; 
+                \end{axis}
+
+                \begin{axis}[
+                        ylabel={Burst Freq},
+                        height=\PlotEventHeight,
+                        name=second neuron plot 1,
+                        at={($(third neuron plot 1.north east) + (0,\PlotSep+\BaseSpacing)$)},
+                        anchor=south east,
+                        ymin=0,
+                        two ticks x axis={0}{4},
+                        clip=false
+                    ]
+                    \addplot[draw=none, fill=plotGreyColor, hist={bins=40,density}] table [col sep=comma, y=freq]{data/stg_loss_burstfreq.csv};
+
+                    \coordinate (tmp) at (axis cs:2.59, 0.1);
+                    \coordinate (tmp2) at (xticklabel* cs:0.5);
+                    \coordinate (tmp3) at (tmp|-tmp2);
+                    \draw[draw=none, natureVermilion, thick, inner sep=1pt] (tmp3) -- ++(0cm,-0.1cm) node[below, text=natureVermilion] {\tiny BL}; 
+                \end{axis}
+
+                \begin{axis}[
+                        ylabel={Spike Height},
+                        height=\PlotEventHeight,
+                        name=first neuron plot 1,
+                        at={($(second neuron plot 1.north east) + (0,\PlotSep+\BaseSpacing)$)},
+                        anchor=south east,
+                        ymin=0, 
+                        two ticks x axis={2}{6},
+                        clip=false
+                    ]
+                    \addplot[draw=none, fill=plotGreyColor, hist={bins=40,density}] table [col sep=comma, y=height]{data/stg_loss_spikeheight.csv};
+
+                    \coordinate (tmp) at (axis cs:4.10, 0.1);
+                    \coordinate (tmp2) at (xticklabel* cs:0.5);
+                    \coordinate (tmp3) at (tmp|-tmp2);
+                    \draw[draw=none, natureVermilion, thick, inner sep=1pt] (tmp3) -- ++(0cm,-0.1cm) node[below, text=natureVermilion] {\tiny BL}; 
+                \end{axis}
+            \end{scope}
+            
+
+            \begin{scope}
+                \pgfplotsset{ 
+                    axis lines=none,
+                    width=\LossPanelWidth-\TextSpacingMetrics-\NodeSpacing,
+                    height=0.1cm,
+                }
+                \begin{axis}[
+                        at={($(first neuron plot 1.south west) + (0,-0.05cm)$)},
+                        anchor=north west,
+                        y dir=reverse,
+                        ymin=0, xmin=2, xmax=6,
+                        clip=false,
+                    ]
+                    \addplot[draw=none, fill=natureVermilion, hist={bins=40,density}] table [col sep=comma, y=height]{data/stg_baseline_spikeheight.csv};
+                \end{axis}
+                \begin{axis}[
+                        at={($(second neuron plot 1.south west) + (0,-0.05cm)$)},
+                        anchor=north west,
+                        y dir=reverse,
+                        ymin=0, xmin=0, xmax=4,
+                        clip=false,
+                    ]
+                    \addplot[draw=none, fill=natureVermilion, hist={bins=40,density}] table [col sep=comma, y=freq]{data/stg_baseline_burstfreq.csv};
+                \end{axis}
+                \begin{axis}[
+                        at={($(third neuron plot 1.south west) + (0,-0.05cm)$)},
+                        anchor=north west,
+                        y dir=reverse,
+                        ymin=0, xmin=0, xmax=40,
+                        clip=false,
+                    ]
+                    \addplot[draw=none, fill=natureVermilion, hist={bins=40,density}] table [col sep=comma, y=nbspikes]{data/stg_baseline_nbspike.csv};
+                \end{axis}
+            \end{scope}
+        \end{scope}
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

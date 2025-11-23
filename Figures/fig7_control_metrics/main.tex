@@ -1,0 +1,111 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath,amssymb,amsfonts}%
+\usepackage{amsthm}%
+\usepackage{mathrsfs}%
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit, math}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+\DeclareMathOperator{\pulse}{\Pi}
+
+\input{../tikzdefinitions.tex}
+
+\colorlet{inColor}{natureSkyBlue}
+\colorlet{in2Color}{natureBluishGreen}
+\colorlet{outColor}{natureOrange}
+\colorlet{out2Color}{natureVermilion} 
+\colorlet{axisColor}{black!20}
+\colorlet{plotGreyColor}{black!40}
+\colorlet{textGreyColor}{black!60}
+\pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+\begin{document}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            font = \normalsize,
+            error text/.style={font=\tiny, text=natureVermilion},
+            error arrow/.style={<->, natureVermilion},
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+        ]
+        \pgfmathsetlengthmacro{\PageWidth}{372pt}
+        \pgfmathsetlengthmacro{\SinWidth}{\PageWidth*0.4}
+        \pgfmathsetlengthmacro{\SinHeight}{\SinWidth*0.4}
+
+        
+        \pgfmathsetlengthmacro{\SinMinPt}{\SinWidth*0.2}
+        \pgfmathsetlengthmacro{\SinMidPt}{\SinWidth*0.4}
+        \pgfmathsetlengthmacro{\SinMaxPt}{\SinWidth*0.7}
+
+        
+        \pgfmathsetlengthmacro{\SinMinVal}{\SinHeight*0.3}
+        \pgfmathsetlengthmacro{\SinMaxVal}{\SinHeight - \SinMinVal}
+
+        \pgfmathsetlengthmacro{\BotWidth}{0.58cm}
+        \pgfmathsetlengthmacro{\TopWidth}{0.46cm}
+
+
+        \draw (0,0) node[left] {$\theta$}
+        %.. controls +(-45:0.2cm) and +(180:0.25cm) .. 
+        .. controls +(0,0) and +(180:\BotWidth) .. 
+        (\SinMinPt,-\SinMinVal) 
+        %.. controls +(0:0.35cm) and +(-135:0.2cm) ..
+        .. controls +(0:\BotWidth) and +(0,0) ..  
+        (\SinMidPt,0) 
+        %.. controls +(45:0.2cm) and +(180:0.6cm) .. 
+        .. controls +(0,0) and +(180:\TopWidth) .. 
+        (\SinMaxPt,\SinMaxVal)
+        %.. controls + (0:0.6cm) and +(135:0.2cm) ..
+        .. controls + (0:\TopWidth) and +(0,0) ..  
+        (\SinWidth,0);
+
+        %\draw[gray, very thin] (0,0)  -- ($(\SinMinPt,-\SinMinVal)+(180:\BotWidth)$) -- (\SinMinPt,-\SinMinVal) -- ($(\SinMinPt,-\SinMinVal)+(0:\BotWidth)$) -- (\SinMidPt,0) -- ($(\SinMaxPt,\SinMaxVal)+(180:\TopWidth)$) -- (\SinMaxPt,\SinMaxVal) -- ($(\SinMaxPt,\SinMaxVal)+(0:\TopWidth)$) -- (\SinWidth,0);
+
+        \draw[error arrow] (\SinMinPt,-\SinMinVal) --(\SinMinPt,-\SinHeight/2) node[pos=0.5, right, error text, inner sep=1pt] {$e_\text{amp}$}; 
+        \draw[error arrow] (\SinMaxPt,\SinMaxVal) --(\SinMaxPt,\SinHeight/2) node[pos=0.7, right, error text, inner sep=0.5pt] {$e_\text{amp}$}; 
+
+        \draw[dashed,plotGreyColor] (0,-\SinHeight/2) node[above, text=plotGreyColor, font=\tiny] {$-\Bar{\theta}$}  -- (\SinWidth,-\SinHeight/2);
+        \draw[dashed,plotGreyColor] (0,\SinHeight/2) node[above, text=plotGreyColor, font=\tiny] {$\Bar{\theta}$} -- (\SinWidth,\SinHeight/2);
+
+        
+        \pgfmathsetlengthmacro{\BotSep}{-\SinHeight/2 - 0.3cm}
+        \pgfmathsetlengthmacro{\EventHeight}{0.3cm}
+
+        \draw (\SinMinPt,\BotSep) -- (\SinMinPt,\BotSep - \EventHeight);
+        \draw (\SinMaxPt,\BotSep) -- (\SinMaxPt,\BotSep - \EventHeight);
+
+        \pgfmathsetlengthmacro{\DelayBurst}{0.65cm}
+        \pgfmathsetlengthmacro{\AdvanceBurst}{0.5cm}
+
+        \pgfmathsetlengthmacro{\EventSep}{\BotSep - \EventHeight - 0.2cm}
+
+        \draw (\SinMinPt + \DelayBurst,\EventSep) -- (\SinMinPt + \DelayBurst,\EventSep - \EventHeight);
+        \draw (\SinMaxPt - \AdvanceBurst,\EventSep) -- (\SinMaxPt - \AdvanceBurst,\EventSep - \EventHeight);
+
+        \node[left] at (0,\BotSep - 0.5*\EventHeight) {$t_\delta$};
+        \node[left] at (0,\EventSep - 0.5*\EventHeight) {$t_\Pi$};
+0
+        
+        %\pgfmathsetlengthmacro{\MeasureSep}{\EventSep - \EventHeight - 0.3cm}
+        \pgfmathsetlengthmacro{\MeasureSep}{\BotSep - \EventHeight - 0.1cm}
+
+        \draw[error arrow] (\SinMinPt,\MeasureSep) -- (\SinMinPt + \DelayBurst,\MeasureSep) node[midway, below, error text] {$e_\text{sync}$};
+        \draw[error arrow] (\SinMaxPt,\MeasureSep) -- (\SinMaxPt - \AdvanceBurst,\MeasureSep) node[midway, below, error text] {$e_\text{sync}$};
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

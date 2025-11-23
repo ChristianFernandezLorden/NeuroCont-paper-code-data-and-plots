@@ -1,0 +1,489 @@
+% plant on top 
+% staircase for low pass
+% -> fast feedback "longer" than slow "longer" than ultraslow
+% sum all the tanh at one add point
+% Come up with three schematics
+% Maybe only the symbol in color ?
+% Or maybe add the rectangle too ?
+
+% Blakcer text
+% Two column for untra slow
+% Background for variable colr and no arrow color
+% Shorter burst for plot
+% + longer period without a stimulus
+
+% Flip all sigmoids (consistency with other figure)
+% Put add evrywhere (minus in sigmoid is enough)
+% Put V in black (and all the rest)
+%  Input : blue an output : Green
+
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, calc, intersections, shapes, angles, patterns, quotes, backgrounds, decorations.pathreplacing, fit}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+%\DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+\newcommand{\shortminus}{\ensuremath{\scalebox{0.45}{\( \boldsymbol{-} \)}}}
+\newcommand{\shortplus}{\ensuremath{\scalebox{0.45}{\( \boldsymbol{+} \)}}}
+
+\input{../tikzdefinitions.tex}
+\input{../pgfplots_style_setup.tex}
+\pgfplotsset{ 
+    every axis plot/.style={
+        no markers,
+        miter limit=2,
+    },
+    %axis lines=left,
+    %ticks=none,
+    label style={font=\large},
+}
+
+
+\pgfmathsetlengthmacro{\PanelLineWidth}{0.5mm}
+\begin{document}
+    %\colorlet{outColor}{natureReddishPurple}
+    \colorlet{axisColor}{black!20}
+    \colorlet{modColor}{black!20}
+    \colorlet{textGreyColor}{black!60}
+    \colorlet{plotGreyColor}{black!40}
+    %\colorlet{inColor}{natureSkyBlue}
+    %\colorlet{voltageColor}{natureBluishGreen}
+    %\colorlet{outColor}{natureOrange}
+    \colorlet{inColor}{black}
+    \colorlet{voltageColor}{black}
+    \colorlet{outColor}{black}
+    \begin{tikzpicture}[
+            % Define picture specific Styles
+            font = \normalsize,
+            panel node/.style={line width=\PanelLineWidth, rounded corners=2mm, inner sep=0pt},
+            panel letter/.style={font=\bfseries\Large, text=textGreyColor, inner sep=0.0cm, anchor=north west},
+            panel show/.is choice,
+            panel show/on/.style={panel node/.append style={draw=black}},
+            panel show/off/.style={panel node/.append style={draw=none}},
+            panel show=off,
+            %every pic/.style={transform shape,scale=0.5},scale=0.5,
+            %connection arrow/.default={scale=0.5},font=\small
+        ]
+        \pgfmathsetlengthmacro{\PanelXSpacing}{0.2cm}
+        \pgfmathsetlengthmacro{\PanelYSpacing}{0.2cm}
+        \pgfmathsetlengthmacro{\PanelYInnerSpacing}{0.1cm}
+        \pgfmathsetlengthmacro{\PageWidth}{372pt*0.85}
+        \pgfmathsetlengthmacro{\FigureHeight}{\PageWidth*1.1}
+        % Widths
+        \pgfmathsetlengthmacro{\PanelWidth}{\PageWidth - \PanelLineWidth}
+
+        \pgfmathsetlengthmacro{\FullPanelWidth}{\PageWidth - 2*\PanelLineWidth - \PanelYSpacing}
+        \pgfmathsetlengthmacro{\NeuronArchPanelWidth}{0.65*\FullPanelWidth}
+        \pgfmathsetlengthmacro{\NeuronSymbPanelWidth}{\FullPanelWidth - \NeuronArchPanelWidth}
+        % Heights
+        \pgfmathsetlengthmacro{\FullPanelHeight}{\FigureHeight - \PanelLineWidth - \PanelYSpacing}
+        \pgfmathsetlengthmacro{\NeuronPanelHeight}{0.53*\FullPanelHeight}
+        \pgfmathsetlengthmacro{\PlotPanelHeight}{\FullPanelHeight - \NeuronPanelHeight}
+
+        \pgfmathsetlengthmacro{\FullNeuronPanelHeight}{\NeuronPanelHeight - \PanelLineWidth - \PanelYInnerSpacing}
+        \pgfmathsetlengthmacro{\NeuronSymbolPanelHeight}{0.48*\FullNeuronPanelHeight}
+        \pgfmathsetlengthmacro{\NeuronPlotPanelHeight}{\FullNeuronPanelHeight - \NeuronSymbolPanelHeight}
+
+        % Inside Panel Spacing
+        \pgfmathsetlengthmacro{\BaseSpacingTight}{0.25cm+0.5*0.6666em}
+        \pgfmathsetlengthmacro{\BaseSpacingSep}{0.25cm+0.6666em}
+        \pgfmathsetlengthmacro{\TopSpacingPanel}{0.4cm}
+        \pgfmathsetlengthmacro{\TopSpacingPanelMod}{0.2cm + \TopSpacingPanel}
+
+        \pgfmathsetlengthmacro{\RightSpacingPanel}{\PanelLineWidth/2}
+        \pgfmathsetlengthmacro{\LabelSpacing}{0.45cm + \RightSpacingPanel}
+
+        \pgfmathsetlengthmacro{\SquareBlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\AddBlockSize}{0.3cm}
+        
+        
+
+        
+        % Panel Layout
+        \begin{scope}[on background layer]
+            \node[panel node, anchor=north west, fill=none, minimum width=\NeuronArchPanelWidth, minimum height=\NeuronPanelHeight] (neuron_panel) at (0,0) {};
+            \node[panel node, anchor=north west, fill=none, minimum width=\NeuronSymbPanelWidth, minimum height=\NeuronSymbolPanelHeight] (neuron_symbol_panel) at ([xshift=\PanelXSpacing]neuron_panel.north east) {};
+            \node[panel node, anchor=south west, fill=none, minimum width=\NeuronSymbPanelWidth, minimum height=\NeuronPlotPanelHeight] (neuron_plot_panel) at ([xshift=\PanelXSpacing]neuron_panel.south east) {};
+            \node[panel node, anchor=north west, fill=none, minimum width=\PanelWidth, minimum height=\PlotPanelHeight] (plot_panel) at ([yshift=-\PanelYSpacing]neuron_panel.south west) {};
+        \end{scope}
+
+        % --- Neuron Panel ---
+        \begin{scope}[
+                shift={(neuron_panel.center)}, 
+                draw=black, 
+                tanh style={draw style={draw=black}, mod input port distance=0.3cm, mod output port distance=0.4cm}, 
+                add style={draw style={draw=black}},
+                lowpass style={text style={font=\tiny}, frac style=spaced},
+                every pic/.style={text=black},
+                %parameter style/.style={fill=#1, text=white, rounded corners=0.2cm, inner sep=0.0cm, minimum width=0.5cm, minimum height=0.5cm},
+                parameter style/.style={text=#1, text=black},
+                name prefix=neuron_panel,
+                positive feedback line/.style={},
+                positive feedback line/.append style={preaction={line width=2pt, draw=natureVermilion, -{Triangle Cap[length=3.6pt 0]}}},
+                negative feedback line/.style={},
+                negative feedback line/.append style={preaction={line width=2pt, draw=natureBluishGreen, -{Triangle Cap[length=3.6pt 0]}}},
+            ]
+            \node[panel letter] at (.north west) {A};
+
+
+            \pgfmathsetlengthmacro{\XOffset}{0.0cm}
+            \pgfmathsetlengthmacro{\InputOutputSpacing}{0.45cm}
+            \pgfmathsetlengthmacro{\InternalSpacing}{0.65cm}
+            \pgfmathsetlengthmacro{\InternalBreak}{0.35cm}
+            \pgfmathsetlengthmacro{\VerticalSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\LineSpacing}{0.2cm}
+            \pgfmathsetlengthmacro{\AddSpacing}{0.3cm}
+            \pgfmathsetlengthmacro{\RightSpacing}{0.35cm}
+            \pgfmathsetlengthmacro{\BraceSpacing}{0.1cm}
+            \pgfmathsetlengthmacro{\BraceWitdh}{0.15cm}
+            \pgfmathsetlengthmacro{\RightDashedSpacing}{0.9cm}
+            \pgfmathsetlengthmacro{\LeftDashedSpacing}{0.15cm}
+
+            \node[anchor=west,parameter style=inColor] (in_text) at ([shift={(\XOffset,-\SquareBlockSize/2-\TopSpacingPanel)}].north west) {$I$}; 
+
+            \pic[fill=white, anchor=west, add style={sign west=plus, sign south=minus}] (add_in_block) at ([xshift=\InputOutputSpacing]in_text.east) {add block=\AddBlockSize};
+
+            \pic[fill=white, anchor=center, lowpass style={tau text={m}}] (lowpass_m_block) at ([xshift=2*\AddSpacing+\AddBlockSize+\SquareBlockSize+\InternalSpacing/2]add_in_block.east) {lowpass block=\SquareBlockSize};
+            \node[above right=0.05cm and 0.05cm, parameter style=voltageColor] (V_text) at (lowpass_m_block.east) {$V$};
+
+            \pic[fill=white, anchor=north west, lowpass style={tau text={f}}] (lowpass_f_block) at ([shift={(\InternalSpacing/2, -\VerticalSpacing)}]lowpass_m_block.south) {lowpass block=\SquareBlockSize};
+            \pic[fill=white, anchor=east, tanh style=reversed] (tanh_fm_block) at ([xshift=-\InternalSpacing]lowpass_f_block.west) {tanh block=\SquareBlockSize};
+
+            \pic[fill=white, anchor=north] (tanh_sp_block) at ([yshift=-\VerticalSpacing]tanh_fm_block.south) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=north, tanh style=reversed] (tanh_sm_block) at ([yshift=-\VerticalSpacing]tanh_sp_block.south) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=north west, lowpass style={tau text={s}}] (lowpass_s_block) at ([shift={(\InternalSpacing, -\VerticalSpacing/2)}]tanh_sp_block.east) {lowpass block=\SquareBlockSize};
+
+            \pic[fill=white, anchor=north] (tanh_up_block) at ([yshift=-\VerticalSpacing]tanh_sm_block.south) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=north, tanh style=reversed] (tanh_um_block) at ([yshift=-\VerticalSpacing]tanh_up_block.south) {tanh block=\SquareBlockSize};
+            \pic[fill=white, anchor=north west, lowpass style={tau text={u}}] (lowpass_u_block) at ([shift={(\InternalSpacing, -\VerticalSpacing/2)}]tanh_up_block.east) {lowpass block=\SquareBlockSize};
+
+            
+            \pic[fill=white, anchor=center, add style={sign big=plus}] (add_all_block) at (tanh_fm_block.west-|add_in_block.south) {add block=\AddBlockSize};
+
+            \pic[fill=white, anchor=east, add style={sign big=plus}] (add_s_block) at ([shift={(-\AddSpacing, -\VerticalSpacing/2)}]tanh_sp_block.south west) {add block=\AddBlockSize};
+            \pic[fill=white, anchor=east, add style={sign big=plus}] (add_u_block) at ([shift={(-\AddSpacing, -\VerticalSpacing/2)}]tanh_up_block.south west) {add block=\AddBlockSize};
+
+            
+            \pic[fill=white, anchor=west] (tanh_out_block) at ([xshift=\InternalSpacing+\RightSpacing]lowpass_f_block.east|-lowpass_m_block.east) {heaviside block=\SquareBlockSize};
+
+            \node[anchor=west, parameter style=outColor] (out_text) at ([xshift=\InputOutputSpacing]tanh_out_block.east) {$\eventsymb$};
+
+            \coordinate (between_f_and_s) at ($(tanh_fm_block)!0.5!(tanh_sp_block)$);
+            \coordinate (between_s_and_u) at ($(tanh_sm_block)!0.5!(tanh_up_block)$);
+
+            \draw[axisColor, densely dashed] ([xshift=-\LeftDashedSpacing-\AddSpacing]add_all_block.west|-between_f_and_s) -- ([xshift=\RightDashedSpacing+\RightSpacing]lowpass_f_block.east|-between_f_and_s);
+            \draw[axisColor, densely dashed] ([xshift=-\LeftDashedSpacing-\AddSpacing]add_all_block.west|-between_s_and_u) -- ([xshift=\RightDashedSpacing+\RightSpacing]lowpass_s_block.east|-between_s_and_u);
+
+            \node[align=center, text=textGreyColor, anchor=south west] at ([xshift=\RightSpacing]lowpass_f_block.east|-between_f_and_s) {F\\[-3pt]A\\[-3pt]S\\[-3pt]T};
+            \node[align=center, text=textGreyColor, anchor=west] at ([xshift=\RightSpacing]lowpass_s_block.east) {S\\[-3pt]L\\[-3pt]O\\[-3pt]W};
+            \node[align=center, text=textGreyColor, anchor=north west] (ultra) at ([xshift=\RightSpacing]lowpass_u_block.east|-between_s_and_u) {U\\[-3pt]L\\[-3pt]T\\[-3pt]R\\[-3pt]A};
+            \node[align=center, text=textGreyColor, anchor=north west, inner xsep=0pt] at (ultra.north east) {S\\[-3pt]L\\[-3pt]O\\[-3pt]W};
+
+            \draw[connection arrow] (in_text.east) -- (add_in_block.west);
+            \draw[connection arrow] (add_in_block.east) -- (lowpass_m_block.west);
+            \draw[connection arrow] (tanh_out_block.east) -- (out_text.west);
+
+            \draw[connection arrow] (lowpass_m_block.east) -| ([xshift=\RightSpacing]lowpass_f_block.east) --(lowpass_f_block.east);
+            \draw[connection arrow] (lowpass_m_block.east) -| ([xshift=\RightSpacing]lowpass_s_block.east) --(lowpass_s_block.east);
+            \draw[connection arrow] (lowpass_m_block.east) -| ([xshift=\RightSpacing]lowpass_u_block.east) --(lowpass_u_block.east);
+            \draw[connection arrow] (lowpass_m_block.east) -- (tanh_out_block.west);
+
+            \draw[connection arrow] (lowpass_f_block.west) -- (tanh_fm_block.east);
+            \draw[connection arrow] (lowpass_s_block.west) -| ([xshift=\InternalBreak]tanh_sp_block.east) --(tanh_sp_block.east);
+            \draw[connection arrow] (lowpass_s_block.west) -| ([xshift=\InternalBreak]tanh_sm_block.east) --(tanh_sm_block.east);
+            \draw[connection arrow] (lowpass_u_block.west) -| ([xshift=\InternalBreak]tanh_up_block.east) --(tanh_up_block.east);
+            \draw[connection arrow] (lowpass_u_block.west) -| ([xshift=\InternalBreak]tanh_um_block.east) --(tanh_um_block.east);
+
+            \draw[connection arrow, negative feedback line] (tanh_sp_block.west) -| (add_s_block.north);
+            \draw[connection arrow, positive feedback line] (tanh_sm_block.west) -| (add_s_block.south);
+            \draw[connection arrow, negative feedback line] (tanh_up_block.west) -| (add_u_block.north);
+            \draw[connection arrow, positive feedback line] (tanh_um_block.west) -| (add_u_block.south);
+
+            \draw[connection arrow, positive feedback line] (tanh_fm_block.west) -- (add_all_block.east);
+            \draw[connection arrow] (add_s_block.west) -| (add_all_block.south);
+            \draw[connection arrow] (add_u_block.west) -| ([xshift=-\AddSpacing]add_all_block.west) -- (add_all_block.west);
+
+            \draw[connection arrow] (add_all_block.north) -- (add_in_block.south);
+
+
+            \begin{scope}[inner sep=0.4pt]
+                %\node[below right, font=\footnotesize\bfseries] at (tanh_fm_block.north west) {$+$};
+                %\node[above right, font=\footnotesize\bfseries] at (tanh_sp_block.south west) {$-$};
+                %\node[below right, font=\footnotesize\bfseries] at (tanh_sm_block.north west) {$+$};
+                %\node[above right, font=\footnotesize\bfseries] at (tanh_up_block.south west) {$-$};
+                %\node[below right, font=\footnotesize\bfseries] at (tanh_um_block.north west) {$+$};
+                \node[right, font=\footnotesize] at (tanh_fm_block.west) {$\scriptscriptstyle g_{\! f \! \shortminus}$};
+                \node[right, font=\footnotesize] at (tanh_sp_block.west) {$\scriptscriptstyle g_{\!\!\: s \!\!\; \shortplus}$};
+                \node[right, font=\footnotesize] at (tanh_sm_block.west) {$\scriptscriptstyle g_{\!\!\: s \!\!\; \shortminus}$};
+                \node[right, font=\footnotesize] at (tanh_up_block.west) {$\scriptscriptstyle g_{\!\!\: u \!\!\; \shortplus}$};
+                \node[right, font=\footnotesize] at (tanh_um_block.west) {$\scriptscriptstyle g_{\!\!\: u \!\!\; \shortminus}$};
+            \end{scope}
+        \end{scope}
+
+        \begin{scope}[
+                shift={(neuron_symbol_panel.center)}, 
+                name prefix=neuron_symbol_panel,
+            ]
+            \node[panel letter] at (.north west) {B};
+
+            \pgfmathsetlengthmacro{\NeuronInOutSpacing}{0.5cm}
+            \pgfmathsetlengthmacro{\BigNeuronSize}{\NeuronSymbPanelWidth*0.5}
+            \pgfmathsetlengthmacro{\GainTextLength}{height("{{\noexpand\Large} g}") + depth("{{\noexpand\Large} g}")}
+
+            %\pic[draw=voltageColor, anchor=north, neuron style={draw style={draw=voltageColor, thick}},fill=white, thick] (neuron) at ([shift={(-\NeuronInOutSpacing+-\NeuronXOffset-\BigNeuronSize/2 - \EventTextLength, -\TopSpacingPanel)}]neuron_panel.north east) {neuron block=\BigNeuronSize};
+            \pic[draw=black, anchor=center, neuron style={draw style={draw=black, thin}, mod input port distance=0.3cm, mod output port distance=0.4cm},fill=white, thick] (neuron) at (0,\GainTextLength/2) {neuron block=\BigNeuronSize};
+
+            \node[text=voltageColor, above left=-0.1cm and -0.2cm, font=\large] at (neuron.north west) {$V$};
+            %\node[above left=-0.1cm and -0.2cm, font=\large] at (neuron.north west) {$V$};
+
+            \draw[draw=inColor, very thick, connection arrow] ([xshift=-\NeuronInOutSpacing]neuron.west) node[left, font=\large, text=inColor] {$I$} ([xshift=-\NeuronInOutSpacing]neuron.west) -- (neuron.west);
+            \draw[draw=outColor, very thick, connection arrow] (neuron.east) -- ([xshift=\NeuronInOutSpacing]neuron.east) node[right, font=\large, text=outColor] {$\eventsymb$};
+            \begin{scope}[on background layer]
+                \draw[very thick, modulation arrow,modColor] ([yshift=-0.1cm]neuron-mod-start) -- (neuron-mod-start) node[right, font=\large] {$p$} -- (neuron-mod-end) ;
+            \end{scope}
+        \end{scope}
+
+        \begin{scope}[
+                shift={(neuron_plot_panel.center)}, 
+                name prefix=neuron_plot_panel,
+            ]
+            \node[panel letter] at (.north west) {C};
+
+            \pgfmathsetlengthmacro{\tHeight}{height("\noexpand\normalsize $t$") + depth("\noexpand\normalsize $t$")}
+            \pgfmathsetlengthmacro{\BotSpacingPanel}{\BaseSpacingSep + \tHeight}
+
+            \pgfmathsetlengthmacro{\BigCHeight}{height("C")+depth("C")}
+            
+            \pgfmathsetlengthmacro{\PlotSep}{0.1cm}
+            \pgfmathsetlengthmacro{\PlotEffectiveHeight}{\NeuronPlotPanelHeight - \BotSpacingPanel  - 2*\PlotSep - 2*\PanelLineWidth - \BigCHeight}
+            \pgfmathsetlengthmacro{\PlotInHeight}{0.2*\PlotEffectiveHeight}
+            \pgfmathsetlengthmacro{\PlotEventHeight}{0.2*\PlotEffectiveHeight}
+            \pgfmathsetlengthmacro{\PlotHeight}{\PlotEffectiveHeight - \PlotInHeight - \PlotEventHeight}
+            
+            \bfseries\Large 
+            \pgfmathsetlengthmacro{\LabelMaxWidths}{max(width("\noexpand\large $I$"), width("\noexpand\large $V$"), width("\noexpand\large $\delta$"))}
+
+            \pgfplotsset{ 
+                width=\NeuronSymbPanelWidth-\LabelSpacing-\LabelMaxWidths,
+                xmin=0, xmax=0.45,
+                detached axis,
+                axis line style={axisColor},
+                tick style={axisColor},
+                %every axis plot/.style={
+                %    no markers,
+                %    thick,
+                %    domain=1.45:2.1,
+                %},
+                %axis line style={draw=none},
+                %ylabel style={rotate=-90, at={(ticklabel cs:0.5)}}
+            }
+
+            \begin{axis}[
+                    scale only axis,
+                    ylabel=$I$,
+                    xlabel=$t$,
+                    y label style={text=inColor},
+                    x label style={text=textGreyColor},
+                    %xlabel={time},
+                    height=\PlotInHeight,
+                    name=neuron input plot,
+                    at={($(.south east) + (-\RightSpacingPanel,\BotSpacingPanel)$)},
+                    anchor=south east,
+                    scaled y ticks=false,
+                    two ticks y axis={-0.002}{0.022},
+                    two ticks y axis labels={}{},
+                    two ticks x axis={0}{0.45},
+                    two ticks x axis labels={}{},
+                ]
+                \addplot[inColor, thick] table [col sep=comma, x=time, y=value]{data/neuron_input.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    %enlarge y limits={rel=0.05}, 
+                    ylabel={$V$},
+                    y label style={text=voltageColor},
+                    height=\PlotHeight,
+                    name=neuron voltage plot,
+                    at={($(neuron input plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    hide x axis,
+                    two ticks y axis={-3.71}{4.63},
+                    two ticks y axis labels={}{},
+                ]
+                \addplot[voltageColor, thick] table [col sep=comma, x=time, y=value]{data/neuron_output.csv};
+            \end{axis}
+            \begin{axis}[
+                    scale only axis,
+                    ylabel={$\eventsymb$},
+                    y label style={text=outColor},
+                    height=\PlotEventHeight,
+                    name=neuron out plot,
+                    at={($(neuron voltage plot.north east) + (0,\PlotSep)$)},
+                    anchor=south east,
+                    two ticks y axis={0}{1},
+                    two ticks y axis labels={}{},
+                    hide x axis,
+                ]
+                \addplot[outColor, thick,ycomb] table [col sep=comma, x=time, y=value]{data/neuron_output_spike.csv};
+            \end{axis}
+        \end{scope}
+        
+        % --- Plot Panel ---
+        \begin{scope}[
+                shift={(plot_panel.center)}, 
+                name prefix=plot_panel,
+                transition arrow/.style = {-{Classical TikZ Rightarrow[width=6pt]}, thick},
+                transition text/.style = {font=\normalsize},
+            ]
+            \node[panel letter] at (.north west) {D};
+            
+            \pgfmathsetlengthmacro{\TopSep}{0.2cm}
+            \pgfmathsetlengthmacro{\PlotYSep}{0.8cm}
+            \pgfmathsetlengthmacro{\PlotXSep}{1.2cm}
+            \pgfmathsetlengthmacro{\TitleSep}{0.5cm}
+            \pgfmathsetlengthmacro{\SideSep}{0.0cm}
+            \pgfmathsetlengthmacro{\InsideSep}{0.1cm}
+            
+            \large
+            \pgfmathsetlengthmacro{\YLabelSize}{max(width("\noexpand\large $I$"), width("\noexpand\large $V$")) + 0.6666em}
+
+            \pgfmathsetlengthmacro{\PlotTotalWidth}{\PanelWidth -  \PlotXSep - 2*\SideSep - 2*\YLabelSize}
+            \pgfmathsetlengthmacro{\PlotTotalHeight}{\PlotPanelHeight - 2*\TitleSep - \PlotYSep- \TopSep}
+
+
+            \pgfmathsetlengthmacro{\TypePlotWidth}{\PlotTotalWidth/2}
+            \pgfmathsetlengthmacro{\TypePlotHeight}{\PlotTotalHeight/2 - \InsideSep}
+            \pgfmathsetlengthmacro{\TypeVoltPlotHeight}{0.7*\TypePlotHeight}
+            \pgfmathsetlengthmacro{\TypeAmpPlotHeight}{\TypePlotHeight -\TypeVoltPlotHeight}
+            
+            \pgfmathsetlengthmacro{\ArrowInsideOffset}{0.08cm}
+
+            \pgfplotsset{ 
+                axis lines=left,
+                enlarge y limits={abs=0.2pt},
+                width=\TypePlotWidth,
+                axis line style={draw=none},
+                tick style={draw=none},
+                ylabel style = {at={(axis description cs:0,0.5)},rotate=-90,anchor=east},
+                ytick=\empty,
+                xtick=\empty,
+                %hide axis,
+                scale only axis,
+                every axis title/.style={at={(0.5,1)},anchor=south},
+                title style={align=center, text=textGreyColor},
+                input plot style/.style={
+                    height=\TypeAmpPlotHeight,
+                },
+                voltage plot style/.style={
+                    height=\TypeVoltPlotHeight,
+                },
+            }
+
+            \begin{axis}[
+                    input plot style,
+                    name=input typeI,
+                    at={($(.south west) + (\SideSep + \YLabelSize ,0)$)},
+                    anchor=south west,
+                    ylabel={$I$},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeI_input.csv};
+            \end{axis}
+            \begin{axis}[
+                    voltage plot style,
+                    name=voltage typeI,
+                    at={($(input typeI.north west) + (0,\InsideSep)$)},
+                    anchor=south west,
+                    ylabel={$V$},
+                    title={Spiking Type I},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeI_output.csv};
+            \end{axis}
+
+            
+            \begin{axis}[
+                    input plot style,
+                    name=input typeII,
+                    at={($(voltage typeI.north west) + (0, \TitleSep + \PlotYSep)$)},
+                    anchor=south west,
+                    ylabel={$I$},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeII_input.csv};
+            \end{axis}
+            \begin{axis}[
+                    voltage plot style,
+                    name=voltage typeII,
+                    at={($(input typeII.north west) + (0,\InsideSep)$)},
+                    anchor=south west,
+                    ylabel={$V$},
+                    title={Spiking Type II},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeII_output.csv};
+            \end{axis}
+
+            
+            \begin{axis}[
+                    input plot style,
+                    name=input typeIII,
+                    at={($(input typeII.south east) + (\PlotXSep+ \YLabelSize, 0)$)},
+                    anchor=south west,
+                    ylabel={$I$},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeIII_input.csv};
+            \end{axis}
+            \begin{axis}[
+                    voltage plot style,
+                    name=voltage typeIII,
+                    at={($(input typeIII.north west) + (0,\InsideSep)$)},
+                    anchor=south west,
+                    ylabel={$V$},
+                    title={Spiking Type III},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeIII_output.csv};
+            \end{axis}
+            
+            \begin{axis}[
+                    input plot style,
+                    name=input typeB,
+                    at={($(input typeI.south east) + (\PlotXSep+ \YLabelSize, 0)$)},
+                    anchor=south west,
+                    ylabel={$I$},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeB_input.csv};
+            \end{axis}
+            \begin{axis}[
+                    voltage plot style,
+                    name=voltage typeB,
+                    at={($(input typeB.north west) + (0,\InsideSep)$)},
+                    anchor=south west,
+                    ylabel={$V$},
+                    title={Bursting},
+                ]
+                \addplot[plotGreyColor] table [col sep=comma, x=time, y=value] {data/exc_types_typeB_output.csv};
+            \end{axis}
+
+            \draw[transition arrow] ([xshift=\ArrowInsideOffset]voltage typeII.south east) -- ([xshift=-\ArrowInsideOffset-\YLabelSize]voltage typeIII.south west) node[above, midway, transition text] {$\uparrow \uparrow g_{\!\!\: u \!\!\; \shortplus}$};
+
+            \draw[transition arrow] ([yshift=-\ArrowInsideOffset]input typeII.south) -- ([yshift=\ArrowInsideOffset+\TitleSep]voltage typeI.north) node[right, midway, transition text] {$\uparrow g_{\!\!\: s \!\!\; \shortminus}$};
+
+            \draw[transition arrow] ([xshift=\ArrowInsideOffset]voltage typeI.south east) -- ([xshift=-\ArrowInsideOffset-\YLabelSize]voltage typeB.south west) node[above, midway, transition text] {$\uparrow g_{\!\!\: s \!\!\; \shortminus}$} node[below, midway, transition text] {$\uparrow g_{\!\!\: u \!\!\; \shortplus}$};
+        \end{scope}
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}

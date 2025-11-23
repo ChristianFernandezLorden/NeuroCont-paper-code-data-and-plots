@@ -1,0 +1,850 @@
+%!TEX TS-program = lualatex -> bibtex -> lualatex*2
+%!TEX root = ./main.tex
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,intersections,shapes, shapes.geometric,angles,patterns,quotes,backgrounds,decorations.pathreplacing}
+
+\usepackage{amsmath}
+
+% Relative to Pics Definition
+\tikzset{
+    block rectangle/.style = {
+        rectangle,
+        rounded corners,
+        inner sep=0pt,
+    },
+    block trapezium/.style = {
+        trapezium,
+        trapezium stretches,
+        shape border rotate=90,
+        %inner sep=0pt,
+        trapezium angle=60, 
+    },
+    block circle/.style = {
+        circle,
+        inner sep=0pt,
+    },
+    pics path/.style = {/tikz/pics/#1/.cd},
+}
+
+\tikzset{% Tanh Block
+    tanh block path/.style = {pics path=tanh block},
+    tanh style/.code={
+        \tikzset{tanh block path, #1}
+    },
+    tanh block path,
+    mod port angle/.initial = -110,
+    mod input port distance/.initial = 0.15cm,
+    mod output port distance/.initial = 0.25cm,
+    mod anchor/.initial=0,
+    mod anchor/.style = {mod anchor/.initial=1},
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.75,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    reversed/.style={reversed/.initial=-1},
+    reversed/.initial=1,
+    reversed/.value forbidden,
+    .style ={
+    code = {
+        \tikzset{
+            tanh block path,
+            draw width ratio/.get=\blockDrawWidthRatio,
+            draw height ratio/.get=\blockDrawHeightRatio,
+            reversed/.get=\blockDrawReversed,
+            mod port angle/.get=\modPortAngle,
+            mod input port distance/.get=\modPortInputDistance,
+            mod output port distance/.get=\modPortOutputDistance,
+            mod anchor/.get=\modanchor,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio*\blockDrawReversed}
+        \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+        \if\modanchor1 
+            \tikzset{anchor style/.style={anchor=\modPortAngle, shift=(\modPortAngle:-\modPortInputDistance)},} 
+        \else 
+            \tikzset{anchor style/.style={}} 
+        \fi
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth, 
+            anchor style
+        ] () at (0, 0) {};
+        \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, tanh block path, draw style internal] 
+            (-0.5,-0.49909) --  (-0.426,-0.49744) -- (-0.37071,-0.49446) -- (-0.32614,-0.48971) -- 
+            (-0.289,-0.48281) -- (-0.272,-0.47829) -- (-0.25614,-0.47304) -- (-0.24129,-0.46701) -- 
+            (-0.22714,-0.46007) -- (-0.21371,-0.45221) -- (-0.201,-0.44343) -- (-0.18886,-0.43364) -- 
+            (-0.17714,-0.42273) -- (-0.16471,-0.40937) -- (-0.15271,-0.39454) -- (-0.141,-0.37804) -- 
+            (-0.12971,-0.36009) -- (-0.11857,-0.34024) -- (-0.10757,-0.31847) -- (-0.096714,-0.29478) -- 
+            (-0.085857,-0.26888) -- (-0.075857,-0.24307) -- (-0.065571,-0.21463) -- (-0.055143,-0.18395) -- 
+            (-0.044143,-0.14976) -- (-0.023,-0.079812) -- (0.017286,0.060206) -- (0.034143,0.11728) -- 
+            (0.052143,0.17481) -- (0.068857,0.22392) -- (0.078857,0.25101) -- (0.088857,0.27626) -- 
+            (0.098714,0.29931) -- (0.10871,0.32083) -- (0.11886,0.34077) -- (0.129,0.35888) -- 
+            (0.13943,0.37566) -- (0.15,0.3909) -- (0.16257,0.40687) -- (0.17557,0.42114) -- 
+            (0.18914,0.43389) -- (0.20329,0.44511) -- (0.21829,0.45504) -- (0.23414,0.46367) -- 
+            (0.251,0.47108) -- (0.26914,0.47742) -- (0.28814,0.4826) -- (0.30871,0.4869) -- 
+            (0.33143,0.49043) -- (0.35657,0.49325) -- (0.41686,0.49709) -- (0.5,0.49909);
+        \coordinate (-mod-port) at (.\modPortAngle);
+        \coordinate (-mod-port-opp) at (.\modPortAngle-180);
+        \coordinate (-mod-start) at ([shift=(\modPortAngle:\modPortInputDistance)]-mod-port);
+        \coordinate (-mod-end) at ([shift=(\modPortAngle:-\modPortOutputDistance)]-mod-port-opp);
+    },
+    },
+    .default=1cm,
+}
+
+\tikzset{% Lowpass block (old)
+    lowpass old block path/.style = {pics path=lowpass old block},
+    lowpass old style/.code={
+        \tikzset{lowpass old block path, #1}
+    },
+    lowpass old block path,
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.75,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    tau text/.initial = {},
+    .style ={
+    code = {
+        \tikzset{
+            lowpass old block path,
+            draw width ratio/.get=\blockDrawWidthRatio,
+            draw height ratio/.get=\blockDrawHeightRatio,
+            tau text/.get=\blockTauText,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio}
+        \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+        ] () at (0, 0) {};
+        \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, lowpass old block path, draw style internal] 
+            (-0.5,0.5) -- (-0.35973,0.49806) -- (-0.26235,0.49401) -- (-0.18609,0.48692) -- 
+            (-0.1237,0.47604) -- (-0.067821,0.45968) -- (-0.018315,0.43728) -- (0.027066,0.40781) -- 
+            (0.069821,0.37031) -- (0.091574,0.34713) -- (0.1132,0.32118) -- (0.1347,0.29247) -- 
+            (0.15633,0.26066) -- (0.20059,0.18684) -- (0.24722,0.09765) -- (0.29722,-0.0085383) -- 
+            (0.35348,-0.13761) -- (0.41911,-0.29669) -- (0.5,-0.5);
+    },
+    },
+    .default=1cm,
+}
+
+\tikzset{% Lowpass block
+    lowpass block path/.style = {pics path=lowpass block},
+    lowpass style/.code={
+        \tikzset{lowpass block path, #1}
+    },
+    lowpass block path,
+    tau text/.initial = {},
+    text style internal/.style={/tikz/.cd},
+    text style/.style={text style internal/.append style={#1}},
+    text style/.value required,
+    tau text/.initial = {},
+    frac style/.is choice,
+    frac style/.initial = 1,
+    frac style/compact/.style = {frac style/.initial = 1},
+    frac style/spaced/.style = {frac style/.initial = 2},
+    .style ={
+    code = {
+        \tikzset{
+            lowpass block path,
+            tau text/.get=\tautext,
+            tau text/.get=\blockTauText,
+            frac style/.get = \blockFracStyle,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+        ] () at (0, 0) {};
+        
+        \if\blockFracStyle1 \node[shift={(.center)}, lowpass block path, text style internal, anchor=center, align=center] {$\frac{1}{\tau_{\!\tautext} s + 1}$}; \fi
+        \if\blockFracStyle2 \node[shift={(.center)}, lowpass block path, text style internal, anchor=center, align=center] {$\dfrac{1}{\tau_{\!\tautext} s \!\!\!\; + \!\!\!\;  1}$}; \fi;
+        %\node[shift={(.center)}, lowpass block path, text style internal, anchor=center, align=center, text width=#1] {$\dfrac{1}{\tau_{\!\tautext} s \! + \! 1}$};
+    },
+    },
+    .default=1cm,
+}
+
+\tikzset{% Bistable block
+    bistable block path/.style = {pics path=bistable block},
+    bistable style/.code={
+        \tikzset{bistable block path, #1}
+    },
+    bistable block path,
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.6,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    in anchor/.is choice,
+    in anchor/.initial = 0,
+    in anchor/pos/.style = {in anchor/.initial = 1},
+    in anchor/neg/.style = {in anchor/.initial = 2},
+    in anchor/none/.style = {in anchor/.initial = 0},
+    .style ={
+    code = {
+        \tikzset{
+            bistable block path,
+            draw width ratio/.get=\blockDrawWidthRatio,
+            draw height ratio/.get=\blockDrawHeightRatio,
+            in anchor/.get=\inanchor,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio}
+        \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+
+        
+        \if\inanchor0 
+            \tikzset{anchor style/.style={}} 
+        \fi
+        \if\inanchor1 
+            \tikzset{anchor style/.style={anchor=west, yshift=-\blockPicWidth/4}} 
+        \fi
+        \if\inanchor2
+            \tikzset{anchor style/.style={anchor=west, yshift=\blockPicWidth/4}} 
+        \fi
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+            anchor style,
+        ] () at (0, 0) {};
+        \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, bistable block path, draw style internal] 
+            (-0.1,-0.5) -- (0.1,-0.5) -- (0.1,0.5) -- (-0.1,0.5)  -- cycle
+            (-0.5,-0.5) -- (-0.1,-0.5)
+            (0.5,0.5) -- (0.1,0.5);
+        \coordinate (-in-pos) at ($(.north west)!0.5!(.west)$);
+        \coordinate (-in-neg) at ($(.south west)!0.5!(.west)$);
+    },
+    },
+    .default=1cm,
+}
+
+\tikzset{% heaviside block
+    heaviside block path/.style = {pics path=heaviside block},
+    heaviside style/.code={
+        \tikzset{heaviside block path, #1}
+    },
+    heaviside block path,
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.6,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    .style ={
+    code = {
+        \tikzset{
+            heaviside block path,
+            draw width ratio/.get=\blockDrawWidthRatio,
+            draw height ratio/.get=\blockDrawHeightRatio,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio}
+        \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+        ] () at (0, 0) {};
+        \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, bistable block path, draw style internal] 
+            (-0.5,-0.5) -- (0,-0.5) -- (0.0,0.5) -- (0.5,0.5) ;
+        \coordinate (-in-pos) at ($(.north west)!0.5!(.west)$);
+        \coordinate (-in-neg) at ($(.south west)!0.5!(.west)$);
+    },
+    },
+    .default=1cm,
+}
+
+
+\tikzset{% Constant block
+    constant block path/.style = {pics path=constant block},
+    constant style/.code={
+        \tikzset{constant block path, #1}
+    },
+    constant block path,
+    text/.initial = {},
+    .style ={
+    code = {
+        \tikzset{
+            constant block path,
+            text/.get=\blockText,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+        ] () at (0, 0) {};
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw=none, fill=none,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+            text width=\blockPicWidth,
+            align=center,
+        ] at (0, 0) {\blockText};
+    },
+    },
+    .default=1cm,
+}
+
+
+\tikzset{% Event Demux block
+    eventdemux block path/.style = {pics path=eventdemux block},
+    eventdemux style/.code={
+        \tikzset{eventdemux block path, #1}
+    },
+    eventdemux block path,
+    sign sep ratio/.initial=0.1,
+    sign size ratio/.initial=0.15,
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    .style ={
+    code = {
+        \tikzset{
+            eventdemux block path,
+            %
+            sign sep ratio/.get = \blockSignSepRatio,
+            sign size ratio/.get = \blockSignSizeRatio,
+        }
+        \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+        \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1}
+        \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*0.45}
+        \pgfmathsetlengthmacro{\blockSignSep}{#1*\blockSignSepRatio}
+        \pgfmathsetlengthmacro{\blockSignSize}{#1*\blockSignSizeRatio}
+        \pgfmathsetlengthmacro{\blockSignHalfSize}{\blockSignSize/2}
+        \pgfmathsetlengthmacro{\blockCenterSep}{\blockSignHalfSize+\blockSignSep}
+        \node[
+            pic actions,transform shape,
+            block trapezium, draw,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+        ] () at (0, 0) {};
+        \iffalse
+        \node[
+            pic actions,transform shape,
+            block rectangle, draw=none, fill=none,
+            rotate=90,
+            minimum width=\blockPicWidth,
+            minimum height=\blockPicWidth,
+            text width=\blockPicWidth,
+            anchor=center,
+            align=center,
+        ] at (.center) {Ev\\DM};
+        \fi
+        \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, eventdemux block path, draw style internal]  
+            (-0.43512,-0.23032) -- (-0.42226,-0.22783) -- (-0.41112,-0.22533) -- (-0.40169,-0.22282) -- 
+            (-0.39368,-0.22022) -- (-0.38239,-0.21506) -- (-0.37468,-0.209) -- (-0.36953,-0.20133) -- 
+            (-0.3661,-0.19076) -- (-0.36282,-0.16145) -- (-0.36125,-0.10737) -- (-0.35896,0.34088) -- 
+            (-0.35753,0.40294) -- (-0.35539,0.34442) -- (-0.34853,-0.026833) -- (-0.34581,-0.5) -- 
+            (-0.34238,-0.35063) -- (-0.33881,-0.28244) -- (-0.33595,-0.25725) -- (-0.33238,-0.23933) -- 
+            (-0.32752,-0.22595) -- (-0.32138,-0.2174) -- (-0.31781,-0.21475) -- (-0.3138,-0.21316) -- 
+            (-0.3118,-0.21282) -- (-0.30966,-0.21277) -- (-0.30552,-0.21353) -- (-0.29951,-0.21638) -- 
+            (-0.28522,-0.22644) -- (-0.27636,-0.23142) -- (-0.26479,-0.23601) -- (-0.25836,-0.23788);
+        % Signs
+        \coordinate (-south rect) at (.south east-|.south);
+        \coordinate (-north rect) at (.north east-|.north);
+        \coordinate (-south west rect) at (.south east-|.west);
+        \coordinate (-north west rect) at (.north east-|.west);
+
+        \coordinate (-pos out) at ($(.north east)!0.5!(.east)$);
+        \coordinate (-neg out) at ($(.south east)!0.5!(.east)$);
+
+        \begin{scope}[shift={($(-pos out) - (\blockCenterSep, 0)$)}]
+            \draw[eventdemux block path, draw style internal] (-\blockSignHalfSize,0) -- +(\blockSignSize,0) ++(\blockSignHalfSize,\blockSignHalfSize) -- ++(0,-\blockSignSize);
+        \end{scope}
+        \begin{scope}[shift={($(-neg out) - (\blockCenterSep, 0)$)}]
+            \draw[eventdemux block path, draw style internal] (-\blockSignHalfSize,0) -- +(\blockSignSize,0);
+        \end{scope}
+    },
+    },
+    .default=1cm,
+}
+
+\iffalse
+\def\signsetup#1{%
+    sign #1/.is choice,
+    sign #1/.initial = 0,
+    sign #1/plus/.style = {sign #1/.initial = 1},
+    sign #1/minus/.style = {sign #1/.initial = 2},
+    sign #1/none/.style = {sign #1/.initial = 0},
+}
+\fi
+\tikzset{% Add block
+    add block path/.style = {pics path=add block},
+    add style/.code={
+        \tikzset{add block path, #1}
+    },
+    add block path,
+    %
+    sign setup/.style = {
+        sign #1/.is choice,
+        sign #1/.initial = 0,
+        sign #1/plus/.style = {sign #1/.initial = 1},
+        sign #1/minus/.style = {sign #1/.initial = 2},
+        sign #1/none/.style = {sign #1/.initial = 0},
+    },
+    sign setup=west,
+    sign setup=north west,
+    sign setup=north,
+    sign setup=north east,
+    sign setup=east,
+    sign setup=south east,
+    sign setup=south,
+    sign setup=south west,
+    sign setup=big,
+    %
+    signs/.style n args={4}{
+        sign west=#1,
+        sign north=#2,
+        sign east=#3,
+        sign south=#4,
+    },
+    sign sep ratio/.initial=0.1,
+    sign size ratio/.initial=0.2,
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    .style = {
+        code = {
+            \tikzset{
+                add block path,
+                %
+                sign west/.get = \blockSignW,
+                sign north west/.get = \blockSignNW,
+                sign north/.get = \blockSignN,
+                sign north east/.get = \blockSignNE,
+                sign east/.get = \blockSignE,
+                sign south east/.get = \blockSignSE,
+                sign south/.get = \blockSignS,
+                sign south west/.get = \blockSignSW,
+                sign big/.get = \blockSignBig,
+                %
+                sign sep ratio/.get = \blockSignSepRatio,
+                sign size ratio/.get = \blockSignSizeRatio,
+            }
+            \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+            \pgfmathsetlengthmacro{\blockSignSep}{#1*\blockSignSepRatio}
+            \pgfmathsetlengthmacro{\blockSignSize}{#1*\blockSignSizeRatio}
+            \pgfmathsetlengthmacro{\blockSignHalfSize}{\blockSignSize/2}
+            \pgfmathsetlengthmacro{\blockCenterSep}{\blockSignHalfSize+\blockSignSep}
+            \pgfmathsetlengthmacro{\blockBigSignSize}{\blockPicWidth-
+            4*\blockSignSep}
+            \pgfmathsetlengthmacro{\blockBigSignHalfSize}{\blockBigSignSize/2}
+            % Circle border
+            \node[
+                pic actions,transform shape,
+                block circle,draw,
+                minimum size=\blockPicWidth
+            ] () at (0mm, 0mm) {};
+
+            % Signs
+            \def\plussign{%
+                \draw[add block path, draw style internal] (-\blockSignHalfSize,0) -- +(\blockSignSize,0) ++(\blockSignHalfSize,\blockSignHalfSize) -- ++(0,-\blockSignSize)
+            }
+            \def\minussign{%
+                \draw[add block path, draw style internal] (-\blockSignHalfSize,0) -- +(\blockSignSize,0)
+            }
+            
+            % Signs drawing
+            \scoped [shift={($(.west)!\blockCenterSep!(.east)$)}]
+                \if\blockSignW1 \plussign \fi
+                \if\blockSignW2 \minussign \fi;
+
+            \scoped [shift={($(.north west)!\blockCenterSep!(.south east)$)}]
+                \if\blockSignNW1 \plussign \fi
+                \if\blockSignNW2 \minussign \fi;
+
+            \scoped [shift={($(.north)!\blockCenterSep!(.south)$)}]
+                \if\blockSignN1 \plussign \fi
+                \if\blockSignN2 \minussign \fi;
+
+            \scoped [shift={($(.north east)!\blockCenterSep!(.south west)$)}]
+                \if\blockSignNE1 \plussign \fi
+                \if\blockSignNE2 \minussign \fi;
+
+            \scoped [shift={($(.east)!\blockCenterSep!(.west)$)}]
+                \if\blockSignE1 \plussign \fi
+                \if\blockSignE2 \minussign \fi;
+
+            \scoped [shift={($(.south east)!\blockCenterSep!(.north west)$)}]
+                \if\blockSignSE1 \plussign \fi
+                \if\blockSignSE2 \minussign \fi;
+
+            \scoped [shift={($(.south)!\blockCenterSep!(.north)$)}]
+                \if\blockSignS1 \plussign \fi
+                \if\blockSignS2 \minussign \fi; 
+
+            \scoped [shift={($(.south west)!\blockCenterSep!(.north east)$)}]
+                \if\blockSignSW1 \plussign \fi
+                \if\blockSignSW2 \minussign \fi;
+
+            \scoped [shift={(.center)}]
+                \if\blockSignBig1 
+                    \draw[add block path, draw style internal] (-\blockBigSignHalfSize,0) -- +(\blockBigSignSize,0) ++(\blockBigSignHalfSize,\blockBigSignHalfSize) -- ++(0,-\blockBigSignSize)
+                \fi \if\blockSignBig2 
+                    \draw[add block path, draw style internal] (-\blockBigSignHalfSize,0) -- +(\blockBigSignSize,0)
+                \fi;
+        }
+    },
+    .default=0.7cm,
+}
+
+\tikzset{% Neuron block
+    neuron block path/.style = {pics path=neuron block},
+    neuron style/.code={
+        \tikzset{neuron block path, #1}
+    },
+    neuron block path,
+    mod port angle/.initial = -110,
+    mod input port distance/.initial = 0.15cm,
+    mod output port distance/.initial = 0.25cm,
+    mod anchor/.initial=0,
+    mod anchor/.style = {mod anchor/.initial=1},
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.75,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    .style = {
+        code = {
+            \tikzset{
+                neuron block path,
+                draw width ratio/.get=\blockDrawWidthRatio,
+                draw height ratio/.get=\blockDrawHeightRatio,
+                mod port angle/.get=\modPortAngle,
+                mod input port distance/.get=\modPortInputDistance,
+                mod output port distance/.get=\modPortOutputDistance,
+                mod anchor/.get=\modanchor,
+            }
+            \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+            \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio}
+            \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+            \if\modanchor1 
+                \tikzset{anchor style/.style={anchor=\modPortAngle, shift=(\modPortAngle:-\modPortInputDistance)},} 
+            \else 
+                \tikzset{anchor style/.style={}} 
+            \fi
+            % Circle border
+            \node[
+                pic actions,transform shape,
+                block circle,draw,
+                minimum size=\blockPicWidth,
+                anchor style
+            ] () at (0, 0) {};
+            % Spike-Burst
+            \coordinate (-south east) at (.south-|.east);
+            \coordinate (-north east) at (.north-|.east);
+            \coordinate (-south west) at (.south-|.west);
+            \coordinate (-north west) at (.north-|.west);
+            \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, neuron block path, draw style internal] 
+                (-0.5,-0.23944) -- (-0.48342,-0.23754) -- (-0.46642,-0.2353) -- (-0.45013,-0.23286) -- 
+                (-0.43512,-0.23032) -- (-0.42226,-0.22783) -- (-0.41112,-0.22533) -- (-0.40169,-0.22282) -- 
+                (-0.39368,-0.22022) -- (-0.38239,-0.21506) -- (-0.37468,-0.209) -- (-0.36953,-0.20133) -- 
+                (-0.3661,-0.19076) -- (-0.36282,-0.16145) -- (-0.36125,-0.10737) -- (-0.35896,0.34088) -- 
+                (-0.35753,0.40294) -- (-0.35539,0.34442) -- (-0.34853,-0.026833) -- (-0.34581,-0.5) -- 
+                (-0.34238,-0.35063) -- (-0.33881,-0.28244) -- (-0.33595,-0.25725) -- (-0.33238,-0.23933) -- 
+                (-0.32752,-0.22595) -- (-0.32138,-0.2174) -- (-0.31781,-0.21475) -- (-0.3138,-0.21316) -- 
+                (-0.3118,-0.21282) -- (-0.30966,-0.21277) -- (-0.30552,-0.21353) -- (-0.29951,-0.21638) -- 
+                (-0.28522,-0.22644) -- (-0.27636,-0.23142) -- (-0.26479,-0.23601) -- (-0.25836,-0.23788) -- 
+                (-0.2515,-0.23946) -- (-0.23978,-0.24134) -- (-0.2335,-0.242) -- (-0.22692,-0.24248) -- 
+                (-0.21992,-0.24277) -- (-0.21263,-0.24289) -- (-0.20492,-0.24282) -- (-0.19677,-0.24258) -- 
+                (-0.1832,-0.24185) -- (-0.16848,-0.24069) -- (-0.15247,-0.23909) -- (-0.13575,-0.23712) -- 
+                (-0.11861,-0.23479) -- (-0.10217,-0.23227) -- (-0.087311,-0.22967) -- (-0.074307,-0.22705) -- 
+                (-0.056302,-0.2225) -- (-0.043298,-0.21775) -- (-0.034296,-0.21252) -- (-0.027436,-0.2057) -- 
+                (-0.024293,-0.19653) -- (-0.022149,-0.18031) -- (-0.019863,-0.11957) -- (-0.017291,0.39702) -- (-0.01629,0.47128) -- (-0.014861,0.5) -- (-0.013147,0.44736) -- (-0.0088597,0.16941) -- 
+                (-0.0037153,-0.035247) -- (-0.0010003,-0.46046) -- (0.0060017,-0.12349) -- (0.0088597,0.38637) -- 
+                (0.018005,-0.040171) -- (0.02072,-0.46148) -- (0.027865,-0.11758) -- (0.030723,0.38593) -- 
+                (0.039726,-0.036767) -- (0.042441,-0.46263) -- (0.049728,-0.12313) -- (0.052586,0.38596) -- 
+                (0.061732,-0.043445) -- (0.064304,-0.4635) -- (0.071878,-0.11894) -- (0.074736,0.38585) -- 
+                (0.083738,-0.037758) -- (0.086453,-0.46484) -- (0.09417,-0.11913) -- (0.097028,0.38575) -- 
+                (0.10603,-0.037998) -- (0.10875,-0.46598) -- (0.11675,-0.11525) -- (0.11961,0.38573) -- 
+                (0.12861,-0.041394) -- (0.13118,-0.46683) -- (0.13947,-0.12225) -- (0.14247,0.38575) -- 
+                (0.15147,-0.044592) -- (0.15404,-0.46838) -- (0.15733,-0.30504) -- (0.16262,-0.12224) -- 
+                (0.16562,0.38594) -- (0.17462,-0.042802) -- (0.17719,-0.46952) -- (0.18048,-0.30868) -- 
+                (0.1862,-0.12121) -- (0.1892,0.3862) -- (0.1982,-0.04104) -- (0.20077,-0.47062) -- 
+                (0.2042,-0.30696) -- (0.2102,-0.12608) -- (0.21335,0.38676) -- (0.22235,-0.042202) -- 
+                (0.22492,-0.47208) -- (0.22849,-0.30435) -- (0.23492,-0.1271) -- (0.23821,0.38741) -- 
+                (0.24707,-0.034853) -- (0.24979,-0.47357) -- (0.2535,-0.30141) -- (0.25922,-0.17707) -- 
+                (0.26065,-0.12125) -- (0.26379,0.38857) -- (0.27279,-0.033353) -- (0.27551,-0.47489) -- 
+                (0.27951,-0.29696) -- (0.28594,-0.17818) -- (0.28751,-0.12556) -- (0.29094,0.39061) -- 
+                (0.29994,-0.036597) -- (0.30266,-0.47624) -- (0.30709,-0.28845) -- (0.30952,-0.24343) -- 
+                (0.31509,-0.1758) -- (0.3168,-0.12802) -- (0.32038,0.39437) -- (0.32952,-0.032239) -- 
+                (0.33224,-0.47764) -- (0.33738,-0.27898) -- (0.3411,-0.23185) -- (0.34353,-0.21739) -- 
+                (0.34596,-0.21149) -- (0.34653,-0.21138) -- (0.3471,-0.21182) -- (0.3481,-0.21398) -- 
+                (0.35024,-0.22501) -- (0.36067,-0.31751) -- (0.36868,-0.37306) -- (0.37525,-0.40093) -- 
+                (0.37882,-0.40979) -- (0.38297,-0.41613) -- (0.38711,-0.41957) -- (0.39197,-0.42128) -- 
+                (0.39468,-0.42153) -- (0.39783,-0.4214) -- (0.40126,-0.42088) -- (0.40526,-0.41993) -- 
+                (0.41912,-0.41519) -- (0.47013,-0.39492) -- (0.5,-0.38428);
+            \coordinate (-mod-port) at (.\modPortAngle);
+            \coordinate (-mod-port-opp) at (.\modPortAngle-180);
+            \coordinate (-mod-start) at ([shift=(\modPortAngle:\modPortInputDistance)]-mod-port);
+            \coordinate (-mod-end) at ([shift=(\modPortAngle:-\modPortOutputDistance)]-mod-port-opp);
+        }
+    },
+    .default=1cm,
+}
+
+\tikzset{% Spike Rebound block
+    rebound block path/.style = {pics path=rebound block},
+    rebound style/.code={
+        \tikzset{rebound block path, #1}
+    },
+    rebound block path,
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.75,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    .style = {
+        code = {
+            \tikzset{
+                rebound block path,
+                draw width ratio/.get=\blockDrawWidthRatio,
+                draw height ratio/.get=\blockDrawHeightRatio,
+            }
+            \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+            \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio}
+            \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+            % Circle border
+            \node[
+                pic actions,transform shape,
+                block circle,draw,
+                minimum size=\blockPicWidth
+            ] () at (0mm, 0mm) {};
+            % Spike-Burst
+            \coordinate (-south east) at (.south-|.east);
+            \coordinate (-north east) at (.north-|.east);
+            \coordinate (-south west) at (.south-|.west);
+            \coordinate (-north west) at (.north-|.west);
+            \draw[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight, rebound block path, draw style internal] 
+                (-0.5,-0.22527) -- (-0.25253,-0.22527) -- (-0.24747,-0.47352) -- (-0.24242,-0.49336) -- 
+                (-0.22727,-0.48345) -- (-0.21717,-0.47923) -- (-0.20202,-0.47565) -- (-0.18687,-0.47373) -- 
+                (-0.17677,-0.47293) -- (-0.16162,-0.47214) -- (-0.14646,-0.47163) -- (-0.13131,-0.4713) -- 
+                (-0.11111,-0.47101) -- (-0.080808,-0.47076) -- (-0.045455,-0.47061) -- (-4.4857e-15,-0.47051) -- 
+                (0.0050505,-0.23969) -- (0.010101,-0.19835) -- (0.020202,-0.14202) -- (0.025253,-0.091052) -- 
+                (0.030303,0.10766) -- (0.035354,0.45618) -- (0.040404,0.5) -- (0.045455,0.49373) -- 
+                (0.050505,0.47417) -- (0.060606,0.38668) -- (0.080808,0.072097) -- (0.085859,-0.085694) -- 
+                (0.090909,-0.5) -- (0.09596,-0.49771) -- (0.10606,-0.37529) -- (0.11616,-0.31911) -- 
+                (0.12626,-0.28901) -- (0.13636,-0.26998) -- (0.14646,-0.25723) -- (0.16162,-0.24457) -- 
+                (0.17677,-0.23636) -- (0.18687,-0.23259) -- (0.19697,-0.22978) -- (0.20707,-0.22767) -- 
+                (0.21717,-0.2261) -- (0.22727,-0.22496) -- (0.24242,-0.22382) -- (0.25253,-0.22334) -- 
+                (0.26768,-0.2229) -- (0.28283,-0.22268) -- (0.30303,-0.22261) -- (0.33838,-0.22276) -- 
+                (0.43434,-0.22354) -- (0.5,-0.22399);
+        }
+    },
+    .default=1cm,
+}
+
+\tikzset{% Directional threshold block
+    threshold block path/.style = {pics path=threshold block},
+    threshold style/.code={
+        \tikzset{threshold block path, #1}
+    },
+    threshold block path,
+    draw width ratio/.initial = 0.75,
+    draw height ratio/.initial = 0.75,
+    draw ratio/.style = {
+        draw width ratio=#1,
+        draw height ratio=#1,
+    },
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    background color/.initial={white},
+    reversed/.style={reversed/.initial=-1},
+    reversed/.initial=1,
+    reversed/.value forbidden,
+    .style = {
+        code = {
+            \tikzset{
+                threshold block path,
+                draw width ratio/.get=\blockDrawWidthRatio,
+                draw height ratio/.get=\blockDrawHeightRatio,
+                background color/.get=\blockBackground,
+                reversed/.get=\blockDrawReversed,
+            }
+            \pgfmathsetlengthmacro{\blockPicWidth}{#1}
+            \pgfmathsetlengthmacro{\blockPicDrawWidth}{#1*\blockDrawWidthRatio}
+            \pgfmathsetlengthmacro{\blockPicDrawHeight}{#1*\blockDrawHeightRatio}
+            \pgfmathsetlengthmacro{\blockPicArrowLength}{0.1*\blockPicDrawHeight}
+            % Rectangle border
+            \node[
+                pic actions,transform shape,
+                block rectangle, draw,
+                minimum width=\blockPicWidth,
+                minimum height=\blockPicWidth, 
+            ] () at (0mm, 0mm) {};
+            % draw
+            \begin{scope}[shift={(.center)},x=\blockPicDrawWidth,y=\blockPicDrawHeight]
+                \draw[threshold block path, draw style internal, yscale=\blockDrawReversed] 
+                (-0.5,-0.35356) -- (-0.47397,-0.4064) -- (-0.44895,-0.447) -- (-0.43594,-0.46381) -- (-0.42392,-0.47657) -- (-0.41191,-0.48662) -- (-0.3999,-0.4939) -- (-0.38789,-0.49837) -- (-0.37588,-0.5) -- (-0.36386,-0.49878) -- (-0.35185,-0.49473) -- (-0.33984,-0.48786) -- (-0.32783,-0.47821) -- (-0.3038,-0.45081) -- (-0.28278,-0.4184) -- (-0.26176,-0.3787) -- (-0.23974,-0.33005) -- (-0.21572,-0.26981) -- (-0.19469,-0.21203) -- (-0.17167,-0.14454) -- (-0.091592,0.10418) -- (-0.060561,0.19696) -- (-0.028529,0.28485) -- (0.0005005,0.35466) -- (0.017518,0.39025) -- (0.033534,0.41968) -- (0.04955,0.44486) -- (0.064565,0.46438) -- (0.07958,0.47978) -- (0.094595,0.4909) -- (0.10961,0.49767) -- (0.12462,0.5) -- (0.13964,0.49789) -- (0.15566,0.49075) -- (0.17167,0.47866) -- (0.18769,0.46171) -- (0.2037,0.4401) -- (0.21972,0.41404) -- (0.23674,0.38176) -- (0.25375,0.34512) -- (0.28278,0.27377) -- (0.31481,0.1846) -- (0.34484,0.094167) -- (0.41291,-0.11799) -- (0.44595,-0.21558) -- (0.47397,-0.29128) -- (0.5,-0.35356);
+                \draw[threshold block path, draw style internal, draw=\blockBackground, line width=1.75*\pgflinewidth] (-0.45,0) -- (0.45,0);
+                \draw[threshold block path, draw style internal, dashed] (-0.5,0) -- (0.5,0);
+                \draw[threshold block path, draw style internal, line width=0.85*\pgflinewidth, -{[length=\blockPicArrowLength]Stealth}] (-0.125,0) -- (-0.125,0.45);
+            \end{scope}
+        }
+    },
+    .default=1cm,
+}
+
+
+\tikzset{% Spike
+    spike path/.style = {pics path=spike},
+    spike style/.code={
+        \tikzset{spike path, #1}
+    },
+    spike path,
+    draw option/.initial={},
+    draw style internal/.style={/tikz/.cd},
+    draw style/.style={draw style internal/.append style={#1}},
+    draw style/.value required,
+    .style ={
+    code = {
+        \tikzset{
+            spike path,
+            draw option/.get=\drawOption,
+        }
+        \pgfmathsetlengthmacro{\spikeHeight}{#1}
+        \draw[pic actions,-,spike path,draw style internal] (0,0) -- (0,\spikeHeight);
+    },
+    },
+    .default=0.1cm,
+}
+
+
+% Global Styles Definition
+
+% Define custom arrow head for depressed synapses
+\makeatletter 
+\pgfdeclarearrow{
+    name = Depressed,
+    parameters = {\the\pgfarrowlength,\the\pgfarrowwidth,\the\pgfarrowinset,\the\pgfarrowlinewidth,\ifpgfarrowreversed  r\fi,\ifpgfarrowroundcap rc\fi},
+    setup code = {
+        % The different end values:
+        \pgfarrowssettipend{.5\pgfarrowlength}
+        \ifpgfarrowreversed
+            \pgfarrowssetlineend{.5\pgfarrowlength}
+        \else
+            \pgfarrowssetlineend{-.5\pgfarrowlength\advance\pgf@x by.5\pgflinewidth}
+        \fi
+        %\pgfarrowssetvisualbackend{-.5\pgfarrowlength}
+        \pgfarrowssetbackend{-.5\pgfarrowlength}
+        % The hull
+        \pgfarrowsupperhullpoint{.5\pgfarrowlength}{.5\pgflinewidth}
+        \ifpgfarrowroundcap
+            \pgfarrowsupperhullpoint{-.5\pgfarrowlength\advance\pgf@x by\pgfarrowinset\advance\pgf@x by2\pgflinewidth}{.5\pgfarrowwidth\advance\pgf@x by.5\pgflinewidth}
+            \pgfarrowsupperhullpoint{-.5\pgfarrowlength}{.5\pgfarrowwidth\advance\pgf@x by.5\pgflinewidth}
+        \else
+            \pgfarrowsupperhullpoint{-.5\pgfarrowlength\advance\pgf@x by\pgfarrowinset\advance\pgf@x by2\pgflinewidth}{.5\pgfarrowwidth}
+            \pgfarrowsupperhullpoint{-.5\pgfarrowlength}{.5\pgfarrowwidth}
+        \fi
+        % Saves: Only the length:
+        \pgfarrowssavethe\pgfarrowlength
+        \pgfarrowssavethe\pgfarrowwidth
+        \pgfarrowssavethe\pgfarrowinset
+        \pgfarrowssavethe\pgflinewidth
+        %\pgfarrowssave\ifpgfarrowroundcap
+    },
+    drawing code = {
+        \pgfpathmoveto{\pgfqpoint{.5\pgfarrowlength}{0pt}}
+        \pgfpathlineto{\pgfpoint{1.5\pgflinewidth+\pgfarrowinset-.5\pgfarrowlength}{0pt}}
+        \pgfusepathqstroke
+        \ifpgfarrowroundcap
+            \pgfsetroundcap
+        \else
+            \pgfsetbuttcap
+        \fi
+        \pgfpathmoveto{\pgfpoint{1.5\pgflinewidth+\pgfarrowinset-.5\pgfarrowlength}{.5\pgfarrowwidth}}
+        \pgfpathlineto{\pgfpoint{1.5\pgflinewidth+\pgfarrowinset-.5\pgfarrowlength}{-.5\pgfarrowwidth}}
+        \pgfpathmoveto{\pgfpoint{.5\pgflinewidth-.5\pgfarrowlength}{.5\pgfarrowwidth}}
+        \pgfpathlineto{\pgfpoint{.5\pgflinewidth-.5\pgfarrowlength}{-.5\pgfarrowwidth}}
+        \pgfusepathqstroke
+    },
+    defaults = {length=4.9pt 2, width'=0pt 0.75, inset=0pt 1}
+}
+\makeatother
+
+
+
+
+\pgfmathsetlengthmacro{\BlockSize}{1cm}
+\pgfmathsetlengthmacro{\NeuronBlockSize}{1.1cm}
+\pgfmathsetlengthmacro{\AddBlockSize}{0.6cm}
+\tikzset{
+    % Block Styles
+    tanh style={.default=\BlockSize, draw style={draw=black}},
+    lowpass old style={.default=\BlockSize, draw style={draw=black}},
+    lowpass style={.default=\BlockSize, text style={font=\small}},
+    bistable style={.default=\BlockSize, draw style={draw=black}},
+    eventdemux style={.default=\BlockSize, draw style={draw=black}},
+    heaviside style={.default=\BlockSize, draw style={draw=black}},
+    constant style={.default=\BlockSize},
+    add style={.default=\AddBlockSize, sign size ratio/.initial=0.3, draw style={draw=black}},
+    neuron style={.default=\NeuronBlockSize, draw style={draw=black}},
+    rebound style={.default=\NeuronBlockSize, draw style={draw=black}},
+    threshold style={.default=\BlockSize, draw style={draw=black}},
+    spike style={.default=0.2cm},
+    % Arrows Tips
+    %connection tip/.tip={Stealth[length=4.9pt 2, width'=0pt 0.75]},
+    connection tip/.tip={Straight Barb[length=3.6pt 2, width'=0pt 0.75]},
+    connection inside tip/.tip={Triangle[length=3.6pt 0, width'=0pt 0.75]},
+    inhibition tip/.tip={Circle[open,length=3.675pt 1.5]},
+    excitation tip/.tip={Triangle[reversed,length=4.9pt 2, width'=0pt 0.75]},
+    depressed tip/.tip={Depressed[length=3.675pt 1.5, width'=0pt 1, inset=0pt 1]},
+    modulation tip/.tip={Triangle[open, length=4.9pt 2, width'=0pt 0.75]},
+    % Old definitions
+    %connection tip/.tip={Stealth[length=2mm, width=1.5mm]},
+    %inhibition tip/.tip={Circle[open,length=2mm]},
+    %excitation tip/.tip={Triangle[reversed,length=3mm, width=2mm]},
+    %depressed tip/.tip={Depressed[length=2mm, width=2mm,inset=0.6mm]},
+    %modulation tip/.tip={Triangle[open,length=2mm, width=1.5mm]},
+    % Arrow Styles
+    connection arrow/.style = {-{connection tip[#1]}},
+    connection arrow inside/.style = {-{connection inside tip[#1]}},
+    facilitated inhibition arrow/.style = {-{inhibition tip[#1]}},
+    facilitated excitation arrow/.style = {-{excitation tip[#1]}},
+    depressed inhibition arrow/.style = {depressed tip-{inhibition tip[#1]}},
+    depressed excitation arrow/.style = {depressed tip-{excitation tip[#1]}},
+    modulation arrow/.style = {-{modulation tip[#1]}},
+    % text style
+    inout text/.style={inner sep=1pt},
+}

@@ -1,0 +1,340 @@
+\documentclass[tikz,border=0pt]{standalone}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfmath}\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc,intersections,shapes,angles,patterns,quotes,backgrounds,decorations.pathreplacing,fit}
+
+\usepackage{ULiege-colors}
+\usepackage{Nature-colors}
+
+
+\input{../tikzdefinitions.tex}
+
+\colorlet{ampColor}{natureVermilion}
+\colorlet{freqColor}{natureBluishGreen}
+\colorlet{textGreyColor}{black!60}
+
+
+\newcommand{\eventsymb}{\ensuremath{\delta}}
+
+\begin{document}
+    \begin{tikzpicture}[
+            % Main diagram 
+            diagram block/.style={block rectangle, thick, fill=white, draw=black, minimum width=\BlockWidth, minimum height=\BlockHeight, align=center, text height=3ex},
+            main sequence/.style={draw=black},
+            amplitude sequence/.style={draw=ampColor, fill=ampColor!20},
+            frequency sequence/.style={draw=freqColor, fill=freqColor!20},
+            line style/.style={rounded corners=1mm, fill=none, thick},
+            letter style/.style={text=black, font=\bfseries\normalsize, inner sep=2pt},
+            param style/.style={inner ysep=-2pt, inner xsep=2pt, font=\scriptsize},
+            % CPG
+            label style/.style={text=textGreyColor, font=\bfseries\Large, inner sep=0pt},
+            %connection tip/.tip={Stealth[length=2mm, width=1.5mm]},
+            inhibition tip/.tip={Circle[open,length=1.5mm]},
+            excitation tip/.tip={Triangle[reversed,length=2mm, width=1.5mm]},
+            depressed tip/.tip={Depressed[length=1.5mm, width=1.5mm,inset=0.4mm]},
+            mod style/.style={inner ysep=1pt, inner xsep=2pt, font=\scriptsize},
+            inouttext style/.style={font=\small, inner sep=1pt},
+            annotation style/.style={font=\scriptsize, inner sep=1pt},
+        ]
+        \pgfmathsetlengthmacro{\LabelSpacing}{2.3cm}
+        \pgfmathsetlengthmacro{\BlockSize}{0.8cm}
+        \pgfmathsetlengthmacro{\CircleSize}{0.5cm}
+        \pgfmathsetlengthmacro{\Neuronsize}{0.9cm}
+
+        \pgfmathsetlengthmacro{\PanelHorizontalSpacing}{0.5cm}
+        \pgfmathsetlengthmacro{\PanelVerticalSpacing}{0.5cm}
+        \coordinate (first line) at (0,0);
+
+        % --- Blocks ---
+        
+        \pgfmathsetlengthmacro{\TopSpacing}{0.2cm}
+        \pgfmathsetlengthmacro{\LeftSpacing}{1cm}
+        \pgfmathsetlengthmacro{\BlockHeight}{1cm}
+        \pgfmathsetlengthmacro{\BlockWidth}{2cm}
+        \pgfmathsetlengthmacro{\InputOutputSpacing}{0.16cm}
+        \pgfmathsetlengthmacro{\VerticalSpacing}{0.3cm}
+        \pgfmathsetlengthmacro{\BeforeMod}{0.15cm}
+        \pgfmathsetlengthmacro{\AfterMod}{0.3cm}
+        \def\ModAngle{50}
+        \begin{scope}[shift={(first line)},
+            ]
+            \node[label style] (A label) at (0,0) {A};
+
+            \node[diagram block, frequency sequence, anchor=west] (freq2) at (\LeftSpacing+\InputOutputSpacing,-0.5*\BlockHeight-\TopSpacing) {Sync Error}; 
+            \node[diagram block, main sequence, anchor=north] (controller2) at ([yshift=-\VerticalSpacing]freq2.south) {CPG}; 
+            \node[diagram block, main sequence, anchor=west] (plant2) at ([xshift=4*\InputOutputSpacing]controller2.east) {Plant}; 
+            \node[diagram block, main sequence, anchor=south west] (events2) at ([shift={(4*\InputOutputSpacing,0.5*\VerticalSpacing)}]plant2.east) {Act Events}; 
+            \node[diagram block, amplitude sequence, anchor=north west] (amp2) at ([shift={(4*\InputOutputSpacing,-0.5*\VerticalSpacing)}]plant2.east) {Amp Error}; 
+
+            \node[anchor=north west, letter style] at (controller2.north west) {B};
+            \node[anchor=north west, letter style] at (events2.north west) {C};
+            \node[anchor=north west, letter style] at (amp2.north west) {E};
+            \node[anchor=north west, letter style] at (freq2.north west) {D};
+
+            \node[anchor=south east, align=right, inouttext style] (plant label) at ([xshift=2*\InputOutputSpacing]plant2.north east) {$\sin(\theta(t))$\\$\cos(\theta(t))$};
+
+            \coordinate (bot_passage_amp) at ([yshift=-\VerticalSpacing]amp2.south);
+            \coordinate (bot_passage_sync) at ([yshift=-2*\VerticalSpacing]amp2.south);
+
+            \draw[connection arrow, main sequence, line style] (events2.east) -- ([xshift=4*\InputOutputSpacing]events2.east) |- ([xshift=-2*\InputOutputSpacing]controller2.west|-bot_passage_sync)  |- (controller2.west);
+            \draw[connection arrow, main sequence, line style] (controller2.-10) -- (plant2.-170);
+            \draw[connection arrow, main sequence, line style] (plant2.east) -- ([xshift=2*\InputOutputSpacing]plant2.east) |- (events2.west);
+
+            \begin{scope}[on background layer]
+                \coordinate (right_passage) at ([xshift=2*\InputOutputSpacing]controller2.east);
+                \coordinate (left_passage) at ([xshift=-2*\InputOutputSpacing]controller2.west);
+                \coordinate (bottom_passage) at ([yshift=-2*\VerticalSpacing]controller2.south);
+
+                \node[fit=(right_passage) (left_passage) (bottom_passage) (controller2) (freq2), draw=none, fill=ulgGrey!20, rounded corners] (controller_box) {};
+                \node[anchor=south east, text=ulgGrey] at (controller_box.south east) {Controller};
+
+                \coordinate (right_passage) at ([xshift=2*\InputOutputSpacing]events2.east);
+                \coordinate (left_passage) at ([xshift=-2*\InputOutputSpacing]events2.west);
+                \coordinate (top_passage) at ([yshift=2*\VerticalSpacing]events2.north);
+
+                \node[fit=(right_passage) (left_passage) (top_passage) (events2) (amp2), draw=none, fill=ulgGrey!20, rounded corners] (sensor_box) {};
+                \node[anchor=north east, text=ulgGrey] at (sensor_box.north east) {Sensor};
+
+                \draw[connection arrow, frequency sequence, line style] (controller2.10) -- ([xshift=2*\InputOutputSpacing]controller2.10) |- (freq2.east);
+                \draw[connection arrow, frequency sequence, line style] (events2.east) -- ([xshift=4*\InputOutputSpacing]events2.east) |- ([xshift=-2*\InputOutputSpacing]controller2.west|-bot_passage_sync)  |- (freq2.west);
+
+                \draw[connection arrow, amplitude sequence, line style] (plant2.east) -- ([xshift=2*\InputOutputSpacing]plant2.east) |- (amp2.west);
+
+                \coordinate (amp_mod_start) at ([shift=(\ModAngle-180:\BeforeMod)]controller2.\ModAngle-180);
+                \coordinate (amp_mod_end) at ([shift=(\ModAngle:\AfterMod)]controller2.\ModAngle);
+                \draw[modulation arrow, amplitude sequence, line style] (amp2.east) -- ([xshift=2*\InputOutputSpacing]amp2.east) |- (amp_mod_start|-bot_passage_amp) [sharp corners] -- (amp_mod_start) node[anchor=north west, param style, text=ampColor] {$g_{s-}$} -- (amp_mod_end);
+                
+                \coordinate (freq_mod_start) at ([shift=(180-\ModAngle:\BeforeMod)]controller2.180-\ModAngle);
+                \coordinate (freq_mod_end) at ([shift=(-\ModAngle:\AfterMod)]controller2.-\ModAngle);
+                \draw[modulation arrow, frequency sequence, line style, rounded corners=0mm] (freq_mod_start|-freq2.south) -- (freq_mod_start) node[anchor=south west, param style, text=freqColor] {$g_\text{syn}$} -- (freq_mod_end);
+            \end{scope}
+
+
+            \node[fit=(events2) (controller2) (amp2) (freq2) (plant2) (bot_passage_sync) (bot_passage_amp), draw=none, fill=none] (controller bounding box) {};
+        \end{scope}
+
+        \coordinate (second line) at ([yshift=-\PanelVerticalSpacing]controller bounding box.south-|first line);
+
+        \pgfmathsetlengthmacro{\LeftSpacing}{0cm}
+
+        \pgfmathsetlengthmacro{\InputOutputSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\MiddleSpacing}{0.6cm}
+        \pgfmathsetlengthmacro{\VerticalSpacing}{0.5cm}
+        \pgfmathsetlengthmacro{\DownCentering}{0.6cm}
+        \begin{scope}[shift={(second line)},]
+            %[shift={($(\PanelHorizontalSpacing,0)+(controller bounding box.north east|-first line)$)},]
+            \node[label style] (B label) at (0,0) {B};
+            \coordinate (center line) at (0,-\DownCentering-\Neuronsize - \VerticalSpacing/2 - 1.41* \VerticalSpacing);
+
+            \node[anchor=west, inouttext style] (event pos) at ($(center line)+(\LeftSpacing,\Neuronsize/2 + \VerticalSpacing/2)$) {$\eventsymb_p$};
+            \node[anchor=west, inouttext style] (event neg) at ($(center line)+(\LeftSpacing,-\Neuronsize/2 -\VerticalSpacing/2)$) {$\eventsymb_n$};
+
+            \pic[fill=white, anchor=west] (HCO pos) at ([xshift=\InputOutputSpacing]event pos.east) {neuron block=\Neuronsize};
+            \pic[fill=white, anchor=west] (HCO neg) at ([xshift=\InputOutputSpacing]event neg.east) {neuron block=\Neuronsize};
+            \node[annotation style, anchor=south east] at (HCO pos.150) {1};
+            \node[annotation style, anchor=south east] at (HCO neg.150) {2};
+            
+            \pic[fill=white, anchor=west] (mot pos) at ([xshift=\MiddleSpacing]HCO pos.east) {neuron block=\Neuronsize};
+            \pic[fill=white, anchor=west] (mot neg) at ([xshift=\MiddleSpacing]HCO neg.east) {neuron block=\Neuronsize};
+            \node[annotation style, anchor=south east] at (mot pos.150) {3};
+            \node[annotation style, anchor=south east] at (mot neg.150) {4};
+
+            \node[anchor=west, inouttext style] (mot out pos) at ([xshift=\InputOutputSpacing]mot pos.east) {$m_p$};
+            \node[anchor=west, inouttext style] (mot out neg) at ([xshift=\InputOutputSpacing]mot neg.east) {$m_n$};
+
+            \draw[connection arrow] (event pos) -- (HCO pos);
+            \draw[connection arrow] (event neg) -- (HCO neg);
+            \draw[depressed excitation arrow] (HCO pos) -- (mot pos);
+            \draw[depressed excitation arrow] (HCO neg) -- (mot neg);
+            \draw[connection arrow] (mot pos) -- (mot out pos);
+            \draw[connection arrow] (mot neg) -- (mot out neg);
+
+            \path (HCO neg.north west)  edge [bend left, facilitated inhibition arrow] (HCO pos.south west) 
+                (HCO pos.south east)  edge  [bend left, facilitated inhibition arrow] (HCO neg.north east);
+            
+            \begin{scope}[on background layer]
+                \draw[modulation arrow, frequency sequence, fill=none] (HCO pos-mod-start) node[anchor=120, text=freqColor, mod style] (gsynpos) {$g_\text{syn}$} -- (HCO pos-mod-end);
+                \draw[modulation arrow, frequency sequence, fill=none] (HCO neg-mod-start) node[anchor=120, text=freqColor, mod style] (gsynneg) {$g_\text{syn}$} -- (HCO neg-mod-end);
+
+                \draw[modulation arrow, amplitude sequence, fill=none] (mot pos-mod-start) node[anchor=120, text=ampColor, mod style] (gsmpos) {$g_{s-}$} -- (mot pos-mod-end);
+                \draw[modulation arrow, amplitude sequence, fill=none] (mot neg-mod-start) node[anchor=120, text=ampColor, mod style] (gsmneg) {$g_{s-}$} -- (mot neg-mod-end);
+            \end{scope}
+
+            \path[name path=horiz pos] ([yshift=\VerticalSpacing]HCO pos.north) -- ([yshift=\VerticalSpacing]mot pos.north);
+            \path[name path=diag pos] (HCO pos.45) -- ++(45:2*\VerticalSpacing);
+            \draw [connection arrow, frequency sequence, fill=none,
+                name intersections={of=horiz pos and diag pos,by=pos inter}] (HCO pos.45) -- (pos inter) -- (pos inter-|mot out pos.west) node[anchor=west, text=freqColor, inouttext style] (h_p) {$h_p$};
+
+            %\node[circle, draw] at (intersection of horiz pos and diag pos) {};
+
+            \path[name path=horiz neg] ([yshift=-\VerticalSpacing]HCO neg.south) -- ([yshift=-\VerticalSpacing]mot neg.south);
+            \path[name path=diag neg] (HCO neg.-45) -- ++(-45:2*\VerticalSpacing);
+            \draw [connection arrow, frequency sequence, fill=none,
+                name intersections={of=horiz neg and diag neg,by=neg inter}] (HCO neg.-45) -- (neg inter) -- (neg inter-|mot out neg.west) node[anchor=west, text=freqColor, inouttext style] (h_n) {$h_n$};
+            %\path [name intersections={of=horiz-neg and diag-neg,by=neg-inter}];
+            \node[fit=(h_p) (h_n) (mot out pos) (mot out neg) (gsmpos) (gsmneg) (gsynpos) (gsynneg) (event pos) (event neg), draw=none, fill=none] (hco bounding box) {};
+        \end{scope}
+
+
+        \pgfmathsetlengthmacro{\VerticalSpacing}{0.3cm}
+        \pgfmathsetlengthmacro{\InputOutputSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\MiddleSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\InputSpacing}{0.6cm}
+        \begin{scope}[shift={($(\PanelHorizontalSpacing,0)+(hco bounding box.east|-second line)$)},
+                inner sep=1pt,    
+            ]
+            \node[label style] (C label) at (0,0) {C};
+
+            \node[anchor=west, inouttext style] (cos event) at (\LeftSpacing,-\VerticalSpacing-\Neuronsize/2) {$\cos$};
+
+            \pic[anchor=west, fill=white, constant style={text=$\frac{s}{\tau s + 1}$}] (deriv cos event) at ([xshift=\InputOutputSpacing]cos event.east) {constant block=\BlockSize};
+
+            \pic[anchor=west, fill=white, threshold style={reversed}] (rebound cos event) at ([xshift=\MiddleSpacing]deriv cos event.east) {threshold block=\BlockSize};
+
+            \pic[anchor=west, fill=white] (demux cos event) at ([xshift=\MiddleSpacing]rebound cos event.east) {eventdemux block=\BlockSize};
+
+            \node[anchor=west, inouttext style] (pos rebound event) at ([xshift=\InputOutputSpacing]demux cos event-pos out) {$\eventsymb_p$};
+            \node[anchor=west, inouttext style] (neg rebound event) at ([xshift=\InputOutputSpacing]demux cos event-neg out) {$\eventsymb_n$};
+
+            \node[anchor=east, inouttext style] (sin event) at ([yshift=-\InputSpacing]cos event.east) {$\sin$};
+
+            \draw[connection arrow] (cos event) -- (deriv cos event);
+            \draw[connection arrow] (deriv cos event) -- (rebound cos event);
+            \draw[connection arrow] (rebound cos event) -- (demux cos event);
+            \draw[connection arrow] (demux cos event-pos out) -- (pos rebound event);
+            \draw[connection arrow] (demux cos event-neg out) -- (neg rebound event);
+            \draw[connection arrow] (sin event) -| (demux cos event.south);
+            
+            \node[fit=(cos event) (deriv cos event) (rebound cos event) (demux cos event) (pos rebound event) (neg rebound event) (sin event), draw=none, fill=none] (event bounding box) {};
+        \end{scope}
+
+        \pgfmathsetlengthmacro{\VerticalSpacing}{0.3cm}
+
+        \pgfmathsetlengthmacro{\InputOutputSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\MiddleSpacing}{0.35cm}
+        \pgfmathsetlengthmacro{\BlockVerticalSpacing}{0.55cm}
+        \pgfmathsetlengthmacro{\ParrallelBlockVerticalSpacing}{0.25cm}
+        \pgfmathsetlengthmacro{\InputSpacing}{1cm}
+        \pgfmathsetlengthmacro{\BreakShift}{0.2cm}
+
+        
+        %\begin{scope}[shift={($(\PanelHorizontalSpacing,-\PanelVerticalSpacing)+(hco bounding box.east|event bounding box.south)$)},]
+        \begin{scope}[shift={($(\PanelHorizontalSpacing,-\PanelVerticalSpacing)+(hco bounding box.east|-event bounding box.south)$)},]
+            \node[label style] (D label) at (0,0) {D};
+
+            \node[anchor=west, inouttext style] (HCO pos freq) at (\LeftSpacing,-\VerticalSpacing-2.25*\BlockSize-\ParrallelBlockVerticalSpacing) {$h_p$};
+            
+            \pic[fill=white, bistable style={in anchor=pos}] (bistable freq) at ([xshift=\InputOutputSpacing]HCO pos freq.east) {bistable block=\BlockSize};
+
+            \node[anchor=east, inouttext style] (HCO neg freq) at ([xshift=-\InputOutputSpacing]bistable freq-in-neg) {$h_n$};
+
+            \pic[anchor=south east, fill=white] (demux pos event) at ([xshift=\BlockSize]bistable freq.north east) {eventdemux block=\BlockSize};
+
+            \pic[anchor=south east, fill=white] (demux neg event) at ([yshift=\ParrallelBlockVerticalSpacing]demux pos event.north east) {eventdemux block=\BlockSize};
+
+            \node[anchor=east, inouttext style] (event neg freq) at (demux neg event.west-|HCO pos freq.east) {$\eventsymb_n$};
+
+            \node[anchor=east, inouttext style] (event pos freq) at (demux pos event.west-|HCO pos freq.east) {$\eventsymb_p$};
+
+            \node[anchor=west, inouttext style, text=freqColor] (neg pos slip event) at ([xshift=\InputOutputSpacing]demux pos event-pos out) {$\eventsymb_{n,g_\text{syn}+}$};
+            \node[anchor=west, inouttext style, text=freqColor] (neg neg slip event) at ([xshift=\InputOutputSpacing]demux pos event-neg out) {$\eventsymb_{n,g_\text{syn}-}$};
+
+            \node[anchor=west, inouttext style, text=freqColor] (pos pos slip event) at ([xshift=\InputOutputSpacing]demux neg event-pos out) {$\eventsymb_{p,g_\text{syn}-}$};
+            \node[anchor=west, inouttext style, text=freqColor] (pos neg slip event) at ([xshift=\InputOutputSpacing]demux neg event-neg out) {$\eventsymb_{p,g_\text{syn}+}$};
+
+            \draw[connection arrow] (HCO pos freq) -- (bistable freq-in-pos);
+            \draw[connection arrow] (HCO neg freq) -- (bistable freq-in-neg);
+            \draw[connection arrow] (event pos freq) -- (demux pos event);
+            \draw[connection arrow] (event neg freq) -- (demux neg event);
+            \draw[connection arrow] (bistable freq.east) -| ($(demux pos event.bottom left corner)!0.75!(demux pos event.left side)$);
+            \scoped[on background layer] \draw[connection arrow] (bistable freq.east) -| ($(demux neg event.top left corner)!0.75!(demux neg event.left side)$);
+            \draw[connection arrow, draw=freqColor] (demux pos event-pos out) -- (neg pos slip event);
+            \draw[connection arrow, draw=freqColor] (demux pos event-neg out) -- (neg neg slip event);
+            \draw[connection arrow, draw=freqColor] (demux neg event-pos out) -- (pos pos slip event);
+            \draw[connection arrow, draw=freqColor] (demux neg event-neg out) -- (pos neg slip event);
+
+            \node[fit=(pos pos slip event) (pos neg slip event) (neg pos slip event) (neg neg slip event) (event pos freq) (event neg freq) (demux pos event) (demux neg event) (HCO pos freq) (HCO neg freq) (bistable freq), draw=none, fill=none] (freq bounding box) {};
+        \end{scope}
+
+        \coordinate (third line) at ([yshift=0cm]freq bounding box.south-|first line);
+
+        \pgfmathsetlengthmacro{\VerticalSpacing}{0.0cm}
+        \pgfmathsetlengthmacro{\VerticalStart}{2.5cm}
+        \pgfmathsetlengthmacro{\LeftSpacing}{1cm}
+
+        \pgfmathsetlengthmacro{\InputOutputSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\MiddleSpacing}{0.4cm}
+        \pgfmathsetlengthmacro{\BlockVerticalSpacing}{0.35cm}
+        \pgfmathsetlengthmacro{\ParrallelBlockVerticalSpacing}{0.25cm}
+        \pgfmathsetlengthmacro{\InputSpacing}{0.8cm}
+        \begin{scope}[shift={(third line)},
+                inner sep=1pt,  
+            ]
+            \node[label style] (E label) at (0,0) {E};
+
+            \node[anchor=west, inouttext style] (cos amp) at (\LeftSpacing,-\VerticalSpacing-\BlockSize-\BlockVerticalSpacing-\CircleSize-\Neuronsize/2) {$\cos$};
+
+            \pic[anchor=west, fill=white, constant style={text=$\frac{s}{\tau s + 1}$}] (deriv cos amp) at ([xshift=\InputOutputSpacing]cos amp.east) {constant block=\BlockSize};
+
+            \pic[anchor=west, fill=white, threshold style={reversed}] (rebound cos amp) at ([xshift=\MiddleSpacing]deriv cos amp.east) {threshold block=\BlockSize};
+
+            \pic[anchor=west, fill=white] (demux cos amp) at ([xshift=\MiddleSpacing]rebound cos amp.east) {eventdemux block=\BlockSize};
+
+            \pic[anchor=west, fill=white] (demux sin pos amp) at ([shift={(\MiddleSpacing,\BlockSize/2+\ParrallelBlockVerticalSpacing/2)}]demux cos amp.east) {eventdemux block=\BlockSize};
+
+            \pic[anchor=west, fill=white] (demux sin neg amp) at ([shift={(\MiddleSpacing,-\BlockSize/2-\ParrallelBlockVerticalSpacing/2)}]demux cos amp.east) {eventdemux block=\BlockSize};
+
+            \pic[anchor=south, add style={sign west=minus, sign north=plus}] (add amp) at ([yshift=\BlockVerticalSpacing]rebound cos amp.north) {add block=\CircleSize};
+
+            \pic[anchor=south east, fill=white, constant style={text=$\Bar{\cos}$}] (desired amp) at ([xshift=-\MiddleSpacing]add amp.north) {constant block=\BlockSize};
+            
+            \node[anchor=west, inouttext style, text=ampColor] (pos pos rebound event) at ([xshift=\InputOutputSpacing]demux sin pos amp-pos out) {$\eventsymb_{p,g_{s-}+}$};
+            \node[anchor=west, inouttext style, text=ampColor] (pos neg rebound event) at ([xshift=\InputOutputSpacing]demux sin pos amp-neg out) {$\eventsymb_{p,g_{s-}-}$};
+
+            \node[anchor=west, inouttext style, text=ampColor] (neg pos rebound event) at ([xshift=\InputOutputSpacing]demux sin neg amp-pos out) {$\eventsymb_{n,g_{s-}+}$};
+            \node[anchor=west, inouttext style, text=ampColor] (neg neg rebound event) at ([xshift=\InputOutputSpacing]demux sin neg amp-neg out) {$\eventsymb_{n,g_{s-}-}$};
+
+            %\node[anchor=west] (pos rebound amp) at ([xshift=\InputOutputSpacing]demux cos amp-pos out) {$\eventsymb_+$};
+            %\node[anchor=west] (neg rebound amp) at ([xshift=\InputOutputSpacing]demux cos amp-neg out) {$\eventsymb_-$};
+
+            %\node[anchor=east] (sin amp) at ([yshift=-\InputSpacing]demux sin neg amp.center-|cos amp.east) {$\sin$};
+            
+            \node[anchor=east, inouttext style] (sin amp) at ([yshift=-\InputSpacing]cos amp.east) {$\sin$};
+
+            \draw[connection arrow] (cos amp) -- (deriv cos amp);
+            \draw[connection arrow] ([xshift=\MiddleSpacing/3]cos amp.east) |- (add amp.west);
+            \draw[connection arrow] (deriv cos amp) -- (rebound cos amp);
+            \draw[connection arrow] (rebound cos amp) -- (demux cos amp);
+            \draw[connection arrow] (desired amp) -| (add amp);
+            \draw[connection arrow] (demux cos amp-pos out) -- ([xshift=\MiddleSpacing/3]demux cos amp-pos out) |- (demux sin pos amp);
+            \draw[connection arrow] (demux cos amp-neg out) -- ([xshift=\MiddleSpacing/3]demux cos amp-neg out) |- (demux sin neg amp);
+            \draw[connection arrow] (sin amp) -| (demux cos amp.south);
+            \draw[connection arrow] (add amp) -| ($(demux sin pos amp.top right corner)!0.75!(demux sin pos amp.right side)$);
+            \scoped[on background layer] \draw[connection arrow] (add amp) -| ($(demux sin neg amp.bottom right corner)!0.75!(demux sin neg amp.right side)$);
+            \draw[connection arrow, draw=ampColor] (demux sin pos amp-pos out) -- (pos pos rebound event);
+            \draw[connection arrow, draw=ampColor] (demux sin pos amp-neg out) -- (pos neg rebound event);
+            \draw[connection arrow, draw=ampColor] (demux sin neg amp-pos out) -- (neg pos rebound event);
+            \draw[connection arrow, draw=ampColor] (demux sin neg amp-neg out) -- (neg neg rebound event);
+            
+            \node[fit=(cos amp) (deriv cos amp) (rebound cos amp) (demux cos amp) (sin amp) (demux sin pos amp) (demux sin neg amp) (add amp) (desired amp) (pos pos rebound event) (pos neg rebound event) (neg pos rebound event) (neg neg rebound event), draw=none, fill=none] (amp bounding box) {};
+        \end{scope}
+
+        %\node[font=\Large\bfseries] (A_label) at ([yshift=\LabelHeight]facil out plot.north west) {A};
+        %\node[font=\Large\bfseries] (B_label) at ([yshift=\LabelHeight]depres out plot.north west) {B};
+        %\node[font=\Large\bfseries,right] at (input.west|-B_label) {A};
+
+        \coordinate (top_left_bb) at (current bounding box.north west);
+        \coordinate (bot_left_bb) at (current bounding box.south west);
+        \coordinate (top_right_bb) at ([xshift=372pt]top_left_bb);
+        \coordinate (bot_right_bb) at ([xshift=372pt]bot_left_bb);
+
+        %\draw[red] (top_left_bb) --(bot_left_bb) -- (bot_right_bb) -- (top_right_bb) -- cycle;
+    \end{tikzpicture}  
+\end{document}
